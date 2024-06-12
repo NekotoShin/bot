@@ -1,0 +1,13 @@
+[bot]
+developers = []
+
+[database]
+hosts = ["localhost:9042", "localhost:9043", "localhost:9044"]
+username = "cassandra"
+password = "cassandra"
+keyspace = "discord"
+
+[logging]
+format = "<green>{time:YYYY-MM-DD HH:mm:ss.SSS}</green> | <level>{level: <8}</level> | <level>{message}</level>"
+level = "INFO" # Must be one of: "DEBUG" (10), "INFO" (20), "WARNING" (30), "ERROR" (40), "CRITICAL" (50)
+retention = 0 # retention in days, 0 for no logs

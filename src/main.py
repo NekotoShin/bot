@@ -34,14 +34,12 @@ class Client(interactions.Client):
     """
 
     __version__ = "0.0.1"
-
     _instance = None
-    _initalized = False
 
     def __new__(cls, *args, **kwargs):
         if cls._instance is None:
             cls._instance = super(Client, cls).__new__(cls, *args, **kwargs)
-        elif cls._initalized:
+        else:
             raise RuntimeError("Client is already initialized. Only one instance of the client is allowed.")
         return cls._instance
 
@@ -86,9 +84,6 @@ class Client(interactions.Client):
             if i.endswith("_boilerplate.py") or i.endswith("__init__.py"):
                 continue
             self.load_extension(i.removesuffix(".py").replace("/", "."))
-
-        # prevent initialization of another instance
-        Client._initalized = True
 
     @interactions.listen()
     async def on_startup(self) -> None:
@@ -148,6 +143,10 @@ class Client(interactions.Client):
                 p = interactions.Permissions(p)
             r |= p
         return (has & r) == r
+
+    async def wait_until_ready(self) -> None:
+        await self.database.wait_until_ready()
+        return await super().wait_until_ready()
 
     async def stop(self) -> None:
         """

@@ -237,9 +237,6 @@ fabric.properties
 # configuration files
 config/*.toml
 
-# boilerplate extension
-_boilerplate.py
-
 # old files from refactoring, pending deletion
 *_old/
 *_old.py

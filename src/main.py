@@ -82,7 +82,7 @@ class Client(interactions.Client):
 
         # load extensions
         for i in glob.glob("src/exts/**/*.py", recursive=True):
-            if i.endswith("_boilerplate.py") or i.endswith("__init__.py"):
+            if i.endswith("template.py") or i.endswith("__init__.py"):
                 continue
             self.load_extension(i.removesuffix(".py").replace("/", "."))
 

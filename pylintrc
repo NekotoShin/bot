@@ -12,7 +12,7 @@ ignore=third_party
 
 # Files or directories matching the regex patterns are skipped. The regex
 # matches against base names, not paths.
-ignore-patterns=__init__.py,_boilerplate.py,start.py
+ignore-patterns=__init__.py,template.py,start.py
 
 # Pickle collected data for later comparisons.
 persistent=no

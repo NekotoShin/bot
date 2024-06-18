@@ -231,12 +231,5 @@ fabric.properties
 # macos specific stuff
 .DS_Store
 
-# X.509 certificates
-*.pem
-
 # configuration files
 config/*.toml
-
-# old files from refactoring, pending deletion
-*_old/
-*_old.py

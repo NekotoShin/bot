@@ -27,6 +27,7 @@ from interactions.ext import prefixed_commands
 from scyllapy.exceptions import ScyllaPyDBError
 
 from src.core import Config, Database, InterceptHandler, Logger
+from src.utils import Embed
 
 
 class Client(interactions.Client):
@@ -48,33 +49,36 @@ class Client(interactions.Client):
         # load the configuration files
         self.config = Config("config/global.toml")
 
+        # setup the embed class
+        Embed.set_client(self)
+
         # setup the logger
-        if self.config["logging"]["level"] not in ["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"]:
+        if self.config["logging.level"] not in ["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"]:
             raise ValueError("Invalid logging level. Must be one of DEBUG, INFO, WARNING, ERROR, CRITICAL.")
 
         self.logger = Logger(
-            log_format=self.config["logging"]["format"],
-            level=self.config["logging"]["level"],
-            retention=self.config["logging"]["retention"],
+            log_format=self.config["logging.format"],
+            level=self.config["logging.level"],
+            retention=self.config["logging.retention"],
         )
         logging.basicConfig(
             handlers=[InterceptHandler(self.logger)],
-            level=logging._nameToLevel[self.config["logging"]["level"]],
+            level=logging._nameToLevel[self.config["logging.level"]],
             force=True,
         )
 
         # prepare the database instance
         self.database = Database(
-            hosts=self.config["database"]["hosts"],
-            username=self.config["database"]["username"],
-            password=self.config["database"]["password"],
-            keyspace=self.config["database"]["keyspace"],
+            hosts=self.config["database.hosts"],
+            username=self.config["database.username"],
+            password=self.config["database.password"],
+            keyspace=self.config["database.keyspace"],
         )
 
         # initialize the client
         super().__init__(
             intents=interactions.Intents.ALL & ~interactions.Intents.GUILD_PRESENCES,
-            owner_ids=self.config["bot"]["developers"],
+            owner_ids=self.config["bot.developers"],
             fetch_members=True,
             logger=self.logger,
         )
@@ -146,6 +150,9 @@ class Client(interactions.Client):
         return (has & r) == r
 
     async def wait_until_ready(self) -> None:
+        """
+        Waits until the bot is ready and the database connection is established.
+        """
         await self.database.wait_until_ready()
         return await super().wait_until_ready()
 

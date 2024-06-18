@@ -59,7 +59,13 @@ class Config:
         :return: The value of the key.
         :rtype: Optional[T]
         """
-        return self._config.get(key, default)
+        data = self._config
+        for k in key.split("."):
+            if k in data:
+                data = data[k]
+            else:
+                return default
+        return data
 
     def reload(self) -> None:
         """
@@ -87,4 +93,4 @@ class Config:
         :return: The value of the key.
         :rtype: Any
         """
-        return self._config[key]
+        return self.get(key)

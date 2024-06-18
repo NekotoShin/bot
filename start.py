@@ -26,7 +26,10 @@ async def main() -> None:
     """
     Start the application.
     """
-    await Client().astart(decouple.config("token"))
+    token = decouple.config("token")
+    if token == "your_token_here":
+        raise ValueError("Please provide a valid token via environment variable.")
+    await Client().astart(token)
 
 
 if __name__ == "__main__":

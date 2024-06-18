@@ -15,13 +15,13 @@ class DeveloperModal(BaseExtension):
     The extension class for the developer modal.
     """
 
-    eval_regex = re.compile(r"developer:eval:(\d+)")
-    ext_regex = re.compile(r"developer:extensions:(\d+):(load|unload|reload)")
+    eval_regex = re.compile(r"(\d+):developer:eval:(\d+)")
+    extensions_regex = re.compile(r"(\d+):developer:extensions:(\d+):(load|unload|reload)")
 
     ext_modes = {"load": "啟用", "unload": "停用", "reload": "重新載入"}
 
     @staticmethod
-    def eval_modal(ori: int) -> interactions.Modal:
+    def eval_modal(author_id: int, ori: int) -> interactions.Modal:
         """
         The modal for the eval command.
         """
@@ -33,7 +33,7 @@ class DeveloperModal(BaseExtension):
                 placeholder="請輸入需要執行的Python程式碼",
             ),
             title="執行程式碼",
-            custom_id=f"developer:eval:{ori}",
+            custom_id=f"{author_id}:developer:eval:{ori}",
         )
 
     @interactions.modal_callback(eval_regex)
@@ -41,15 +41,20 @@ class DeveloperModal(BaseExtension):
         try:
             result = eval(code)  # pylint: disable=eval-used
         except Exception as e:  # pylint: disable=broad-except
-            embed = Embed.traceback(e)
+            desc = f"執行操作時發生了一個錯誤：```{e}```"
+            success = False
         else:
-            embed = Embed("執行程式碼", description=f"`{result}`", success=True)
+            desc = f"`{result}`"
+            success = True
+        matched = self.eval_regex.match(ctx.custom_id)
         await ctx.edit(
-            self.eval_regex.match(ctx.custom_id).group(1), embed=embed, components=DeveloperComponents.eval_completed()
+            matched.group(2),
+            embed=Embed("開發者工具 - 執行程式碼", description=desc, success=success),
+            components=DeveloperComponents.eval_completed(matched.group(1)),
         )
 
     @staticmethod
-    def extensions(ori: int, option: Literal["load", "unload", "reload"]) -> interactions.Modal:
+    def extensions(author_id: int, ori: int, option: Literal["load", "unload", "reload"]) -> interactions.Modal:
         """
         The modal for the extensions command.
         """
@@ -61,19 +66,19 @@ class DeveloperModal(BaseExtension):
                 placeholder="請輸入要執行的插件名稱",
             ),
             title=f"{DeveloperModal.ext_modes[option]}插件",
-            custom_id=f"developer:extensions:{ori}:{option}",
+            custom_id=f"{author_id}:developer:extensions:{ori}:{option}",
         )
 
-    @interactions.modal_callback(ext_regex)
+    @interactions.modal_callback(extensions_regex)
     async def extensions_callback(self, ctx: interactions.ModalContext, extension: str):
-        regex = self.ext_regex.match(ctx.custom_id)
-        ori, option = regex.group(1), regex.group(2)
+        regex = self.extensions_regex.match(ctx.custom_id)
+        author_id, ori, option = regex.group(1), regex.group(2), regex.group(3)
 
         loaded, unloaded = Developer.get_extensions(self.client)
         reload_self = False
         success = False
         if not extension.startswith("src.exts."):
-            extension = "src.exts." + extension
+            extension = f"src.exts.{extension}"
         if option == "load":
             if extension in loaded:
                 desc = f"插件 `{extension}` 已經在啟用狀態。"
@@ -107,8 +112,8 @@ class DeveloperModal(BaseExtension):
                 self.client.reload_extension(extension)
                 desc = f"插件 `{extension}` 已經成功重新載入。"
                 success = True
-        embed = Embed(f"{self.ext_modes[option]}插件", description=desc, success=success)
-        await ctx.edit(ori, embed=embed, components=DeveloperComponents.extensions())
+        embed = Embed(f"開發者工具 - {self.ext_modes[option]}插件", description=desc, success=success)
+        await ctx.edit(ori, embed=embed, components=DeveloperComponents.extensions(author_id))
         if reload_self:
             self.client.reload_extension(self.extension_name)
 
@@ -118,8 +123,12 @@ class DeveloperComponents(BaseExtension):
     The extension class for the developer components.
     """
 
+    developer_regex = re.compile(r"(\d+):developer:select")
+    eval_completed_regex = re.compile(r"(\d+):developer:eval:completed")
+    extensions_regex = re.compile(r"(\d+):developer:extensions")
+
     @staticmethod
-    def developer() -> List[interactions.ActionRow]:
+    def developer(author_id: int) -> List[interactions.ActionRow]:
         """
         The components for the prefixed developer command.
         """
@@ -145,31 +154,32 @@ class DeveloperComponents(BaseExtension):
                         emoji=interactions.PartialEmoji(name="🛑"),
                     ),
                     placeholder="👨‍💻｜請選擇需要執行的行動",
-                    custom_id="developer:select",
+                    custom_id=f"{author_id}:developer:select",
                 )
             )
         ]
 
-    @interactions.component_callback("developer:select")
+    @interactions.component_callback(developer_regex)
     async def developer_select_callback(self, ctx: interactions.ComponentContext):
-        ref = await ctx.message.fetch_referenced_message()
-        if not ref or ctx.author.id != ref.author.id:
+        author_id = int(self.developer_regex.match(ctx.custom_id).group(1))
+        if ctx.author.id != author_id:
             return await ctx.respond(embed=Embed.declined("select"), ephemeral=True)
         option = ctx.values[0]
         if option == "eval":
-            return await ctx.send_modal(DeveloperModal.eval_modal(ctx.message.id))
+            return await ctx.send_modal(DeveloperModal.eval_modal(author_id, ctx.message.id))
 
         await ctx.defer(edit_origin=True)
-        if option == "shutdown":
+        if option == "extensions":
+            await ctx.edit_origin(
+                embed=Embed("開發者工具 - 插件管理", description="管理機器人插件的各項功能"),
+                components=DeveloperComponents.extensions(author_id),
+            )
+        elif option == "shutdown":
             await ctx.edit_origin(embed=Embed(description="即將關閉機器人。", success=True), components=[])
             await self.client.stop()
-        elif option == "extensions":
-            await ctx.edit_origin(
-                embed=Embed("插件管理", description="管理機器人的插件"), components=DeveloperComponents.extensions()
-            )
 
     @staticmethod
-    def eval_completed() -> List[interactions.ActionRow]:
+    def eval_completed(author_id: int) -> List[interactions.ActionRow]:
         """
         The components for the eval command after completion.
         """
@@ -189,25 +199,27 @@ class DeveloperComponents(BaseExtension):
                         emoji=interactions.PartialEmoji(name="🔙"),
                     ),
                     placeholder="👨‍💻｜請選擇需要執行的行動",
-                    custom_id="developer:eval:completed",
+                    custom_id=f"{author_id}:developer:eval:completed",
                 )
             )
         ]
 
-    @interactions.component_callback("developer:eval:completed")
+    @interactions.component_callback(eval_completed_regex)
     async def eval_completed_callback(self, ctx: interactions.ComponentContext):
-        ref = await ctx.message.fetch_referenced_message()
-        if not ref or ctx.author.id != ref.author.id:
+        author_id = int(self.eval_completed_regex.match(ctx.custom_id).group(1))
+        if ctx.author.id != author_id:
             return await ctx.respond(embed=Embed.declined("select"), ephemeral=True)
         option = ctx.values[0]
         if option == "eval":
-            return await ctx.send_modal(DeveloperModal.eval_modal(ctx.message.id))
+            return await ctx.send_modal(DeveloperModal.eval_modal(author_id, ctx.message.id))
         await ctx.defer(edit_origin=True)
         if option == "back":
-            return await ctx.edit(embed=Developer.developer_embed(), components=DeveloperComponents.developer())
+            return await ctx.edit(
+                embed=Developer.developer_embed(), components=DeveloperComponents.developer(author_id)
+            )
 
     @staticmethod
-    def extensions(skip_list: Optional[bool] = False) -> List[interactions.ActionRow]:
+    def extensions(author_id: int, skip_list: Optional[bool] = False) -> List[interactions.ActionRow]:
         """
         The components for the extensions command.
         """
@@ -251,24 +263,24 @@ class DeveloperComponents(BaseExtension):
                         emoji=interactions.PartialEmoji(name="🔙"),
                     ),
                     placeholder="🔌｜請選擇需要執行的行動",
-                    custom_id="developer:extensions",
+                    custom_id=f"{author_id}:developer:extensions",
                 )
             )
         ]
 
-    @interactions.component_callback("developer:extensions")
+    @interactions.component_callback(extensions_regex)
     async def extensions_callback(self, ctx: interactions.ComponentContext):
-        ref = await ctx.message.fetch_referenced_message()
-        if not ref or ctx.author.id != ref.author.id:
+        author_id = int(self.extensions_regex.match(ctx.custom_id).group(1))
+        if ctx.author.id != author_id:
             return await ctx.respond(embed=Embed.declined("select"), ephemeral=True)
         option = ctx.values[0]
         if option in ("load", "unload", "reload"):
-            return await ctx.send_modal(DeveloperModal.extensions(ctx.message.id, option))
+            return await ctx.send_modal(DeveloperModal.extensions(author_id, ctx.message.id, option))
 
         await ctx.defer(edit_origin=True)
         if option == "list":
             loaded, unloaded = Developer.get_extensions(self.client)
-            embed = Embed("插件列表", description="所有已經啟用及可用的插件")
+            embed = Embed("開發者工具 - 插件列表", description="所有已經啟用及可用的插件")
             if not loaded:
                 value = "\\*沒有啟用的插件\\*"
             else:
@@ -283,7 +295,7 @@ class DeveloperComponents(BaseExtension):
             embed.add_field(name="可用的插件", value=value)
             await ctx.edit(embed=embed, components=DeveloperComponents.extensions(True))
         elif option == "back":
-            await ctx.edit(embed=Developer.developer_embed(), components=DeveloperComponents.developer())
+            await ctx.edit(embed=Developer.developer_embed(), components=DeveloperComponents.developer(author_id))
 
 
 class Developer(BaseExtension):
@@ -320,7 +332,7 @@ class Developer(BaseExtension):
     @prefixed_commands.prefixed_command(name="developer", aliases=["dev", "owner", "help"])
     @interactions.check(interactions.is_owner())
     async def developer(self, ctx: prefixed_commands.PrefixedContext):
-        await ctx.reply(embed=Developer.developer_embed(), components=DeveloperComponents.developer())
+        await ctx.reply(embed=Developer.developer_embed(), components=DeveloperComponents.developer(ctx.author.id))
 
     async def pre_run(self, ctx: prefixed_commands.PrefixedContext):
         self.logger.warning(

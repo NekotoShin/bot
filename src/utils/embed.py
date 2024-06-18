@@ -44,9 +44,7 @@ class Embed(interactions.Embed):
             kwargs["description"] = description.replace(self._client.http.token, "[REDACTED TOKEN]")
 
         super().__init__(**kwargs)
-        self.set_author(
-            name=f"猫戸助手 - {name}" if name else "猫戸助手", url=url, icon_url=self._client.user.avatar.url
-        )
+        self.set_author(name=name or "猫戸助手", url=url, icon_url=self._client.user.avatar.url)
 
     @classmethod
     def declined(cls, ctype: Optional[Literal["button", "select"]] = "button") -> "Embed":
@@ -61,15 +59,3 @@ class Embed(interactions.Embed):
         if ctype not in ("button", "select"):
             raise ValueError("The component type must be either 'button' or 'select'.")
         return cls("操作失敗", f"你不能使用這個{'按鈕' if ctype == 'button' else '選單'}。", success=False)
-
-    @classmethod
-    def traceback(cls, error: Exception) -> "Embed":
-        """
-        Returns an embed with a traceback response.
-
-        :param client: The client instance.
-        :type client: Client
-        :param error: The error that occurred.
-        :type error: Exception
-        """
-        return cls("錯誤", f"執行操作時發生了一個錯誤：```{error}```", success=False)

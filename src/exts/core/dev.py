@@ -376,7 +376,7 @@ class DeveloperCore(BaseExtension):
         all_exts = [
             i.removesuffix(".py").replace("/", ".")
             for i in glob.glob("src/exts/**/*.py", recursive=True)
-            if not i.endswith("template.py") and not i.endswith("__init__.py")
+            if not i.endswith("template.py")
         ]
         loaded = {i.extension_name for i in client.ext.values()}
         return loaded, [i for i in all_exts if i not in loaded]

@@ -19,14 +19,15 @@ import copy
 import glob
 import logging
 import os
-from typing import Union
+from typing import Dict, Union
 
 import interactions
 import psutil
 from interactions.ext import prefixed_commands
 from scyllapy.exceptions import ScyllaPyDBError
 
-from src.core import Config, DatabaseCore, InterceptHandler, Logger
+from src.core import Config, DatabaseCore, FeatureDatabase, InterceptHandler, Logger
+from src.core.database.features import DvcDatabase, SettingsDatabase
 from src.utils import Embed
 
 
@@ -74,6 +75,10 @@ class Client(interactions.Client):
             password=self.config["database.password"],
             keyspace=self.config["database.keyspace"],
         )
+        self.feature_database: Dict[str, FeatureDatabase] = {
+            "settings": SettingsDatabase(self.database),
+            "dvc": DvcDatabase(self.database),
+        }
 
         # initialize the client
         super().__init__(
@@ -258,3 +263,7 @@ class BaseExtension(interactions.Extension):
     @property
     def global_database(self) -> DatabaseCore:
         return self.client.database
+
+    @property
+    def feature_database(self) -> Dict[str, FeatureDatabase]:
+        return self.client.feature_database

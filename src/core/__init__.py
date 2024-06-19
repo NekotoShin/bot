@@ -16,7 +16,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
 
 from .config import Config
-from .database import DatabaseCore, to_bigint, to_snowflake
+from .database import DatabaseCore, FeatureDatabase, to_bigint, to_snowflake
 from .logging import InterceptHandler, Logger
 
-__all__ = ("Config", "DatabaseCore", "Logger", "InterceptHandler", "to_bigint", "to_snowflake")
+__all__ = ("Config", "DatabaseCore", "FeatureDatabase", "Logger", "InterceptHandler", "to_bigint", "to_snowflake")

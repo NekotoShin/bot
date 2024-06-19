@@ -15,8 +15,8 @@ You should have received a copy of the GNU Affero General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
 
-from .core import DatabaseCore
+from .core import DatabaseCore, FeatureDatabase
 from .features import DvcDatabase, SettingsDatabase
 from .utils import to_bigint, to_snowflake
 
-__all__ = ("DatabaseCore", "DvcDatabase", "SettingsDatabase", to_bigint, to_snowflake)
+__all__ = ("DatabaseCore", "FeatureDatabase", "DvcDatabase", "SettingsDatabase", to_bigint, to_snowflake)

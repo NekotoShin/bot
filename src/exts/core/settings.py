@@ -17,7 +17,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 import interactions
 
-from src.core.database import DvcDatabase, SettingsDatabase
+from src.core.database import SettingsDatabase
 from src.main import BaseExtension, Client
 from src.utils import DvcSettings, Settings
 
@@ -35,8 +35,7 @@ class SettingsExt(BaseExtension):
         :type client: Client
         """
         super().__init__(client=client)
-        self.database = SettingsDatabase(self.global_database)
-        self.databases = {"dvc": DvcDatabase(self.global_database)}
+        self.database: SettingsDatabase = self.feature_database["settings"]
 
     @interactions.slash_command(name=interactions.LocalizedName(english_us="settings", chinese_taiwan="設定"))
     @interactions.integration_types(guild=True, user=True)
@@ -104,7 +103,7 @@ class SettingsExt(BaseExtension):
         await ctx.defer(edit_origin=True)
         option = ctx.values[0]
         if option == "dvc":
-            dvc = await self.databases["dvc"].get_guild_dvc_settings(ctx.guild.id)
+            dvc = await self.feature_database["dvc"].get_guild_dvc_settings(ctx.guild.id)
             embed = DvcSettings.embed(ctx, dvc)
             components = DvcSettings.components(ctx, dvc)
         elif option == "placeholder":

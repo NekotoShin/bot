@@ -38,7 +38,7 @@ class DvcExtension(BaseExtension):
         :type client: Client
         """
         super().__init__(client=client)
-        self.database = DvcDatabase(self.global_database)
+        self.database: DvcDatabase = self.feature_database["dvc"]
 
 
 class DvcModals(DvcExtension):

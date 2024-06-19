@@ -16,13 +16,14 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
 
 import asyncio
+from typing import List, Tuple
 
 import interactions  # noqa: F401
 from interactions.api.events import VoiceStateUpdate
 
 from src.core.database import DvcDatabase, models
 from src.main import BaseExtension, Client
-from src.utils import DvcSettings, Settings
+from src.utils import DvcSettings, Embed, Settings
 
 
 class DvcExtension(BaseExtension):
@@ -53,15 +54,42 @@ class DvcModals(DvcExtension):
         """
         await ctx.defer(edit_origin=True)
         dvc = await self.database.get_guild_dvc_settings(ctx.guild.id)
-        dvc.name = name
-        await self.database.set_guild_dvc_settings(ctx.guild.id, models.DvcSettings.create(**dvc.__dict__))
-        await ctx.edit("@original", embed=DvcSettings.embed(ctx, dvc), components=DvcSettings.components(ctx, dvc))
+        if name := name.strip():
+            dvc.name = name
+            await self.database.set_guild_dvc_settings(ctx.guild.id, models.DvcSettings.create(**dvc.__dict__))
+            embed = DvcSettings.embed(ctx, dvc, "成功設置名稱格式。", True)
+        else:
+            embed = DvcSettings.embed(ctx, dvc, "名稱格式不能為空。", False)
+        await ctx.edit("@original", embed=embed, components=DvcSettings.components(dvc))
 
 
 class DvcComponents(DvcExtension):
     """
     The extension class for the dynamic voice channel components.
     """
+
+    async def handle_enabled(self, ctx: interactions.ComponentContext) -> Tuple[Embed, List[interactions.ActionRow]]:
+        """
+        Handle the enabled setting.
+
+        :param ctx: The component context.
+        :type ctx: interactions.ComponentContext
+
+        :return: The embed and components.
+        :rtype: tuple
+        """
+        dvc = await self.database.get_guild_dvc_settings(ctx.guild.id)
+        if dvc.enabled:
+            dvc.enabled = False
+            await self.database.set_guild_dvc_settings(ctx.guild.id, models.DvcSettings.create(**dvc.__dict__))
+            return DvcSettings.embed(ctx, dvc, "成功停用動態語音頻道。", True), DvcSettings.components(dvc)
+        if not dvc.lobby or not await self.client.fetch_channel(dvc.lobby):
+            return DvcSettings.embed(ctx, dvc, "請先設置大廳頻道。", False), DvcSettings.components(dvc)
+        if not dvc.name:
+            return DvcSettings.failed_embed(ctx, dvc, "請先設置名稱格式。", False), DvcSettings.components(dvc)
+        dvc.enabled = True
+        await self.database.set_guild_dvc_settings(ctx.guild.id, models.DvcSettings.create(**dvc.__dict__))
+        return DvcSettings.embed(ctx, dvc, "成功啟用動態語音頻道。", True), DvcSettings.components(dvc)
 
     @interactions.component_callback("dvc_settings:select")
     async def dvc_settings_select(self, ctx: interactions.ComponentContext):
@@ -74,15 +102,44 @@ class DvcComponents(DvcExtension):
             return await ctx.send_modal(DvcSettings.name_modal(None if current == "未設置" else current[1:-1]))
 
         await ctx.defer(edit_origin=True)
-        if option == "enabled":
-            embed, components = await self.handle_enabled(ctx)  # TODO: handle_enabled
-        elif option == "lobby":
-            embed, components = await self.handle_lobby(ctx)  # TODO: handle_lobby
+        if option == "toggle":
+            embed, components = await self.handle_enabled(ctx)
+        elif option == "channel":
+            embed = DvcSettings.channel_embed()
+            components = DvcSettings.channel_components()
         elif option == "placeholder":
             embed, components = None, None
         elif option == "return":
             embed = Settings.features_embed()
             components = Settings.features_components(ctx)
+        await ctx.edit(embed=embed, components=components)
+
+    @interactions.component_callback("dvc_settings:channel_action_select")
+    async def dvc_settings_channel_action_select(self, ctx: interactions.ComponentContext):
+        """
+        The component callback for the dynamic voice channel channel action select menu.
+        """
+        await ctx.defer(edit_origin=True)
+        option = ctx.values[0]
+        dvc = await self.database.get_guild_dvc_settings(ctx.guild.id)
+        if option == "placeholder":
+            embed, components = None, None
+        elif option == "return":
+            embed = DvcSettings.embed(ctx, dvc)
+            components = DvcSettings.components(dvc)
+        await ctx.edit(embed=embed, components=components)
+
+    @interactions.component_callback("dvc_settings:channel_select")
+    async def dvc_settings_channel_select(self, ctx: interactions.ComponentContext):
+        """
+        The component callback for the dynamic voice channel channel select menu.
+        """
+        await ctx.defer(edit_origin=True)
+        dvc = await self.database.get_guild_dvc_settings(ctx.guild.id)
+        dvc.lobby = ctx.values[0].id
+        await self.database.set_guild_dvc_settings(ctx.guild.id, models.DvcSettings.create(**dvc.__dict__))
+        embed = DvcSettings.embed(ctx, dvc, "成功設置大廳頻道。", True)
+        components = DvcSettings.components(dvc)
         await ctx.edit(embed=embed, components=components)
 
 

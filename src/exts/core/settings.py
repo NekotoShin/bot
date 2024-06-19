@@ -105,7 +105,7 @@ class SettingsExt(BaseExtension):
         if option == "dvc":
             dvc = await self.feature_database["dvc"].get_guild_dvc_settings(ctx.guild.id)
             embed = DvcSettings.embed(ctx, dvc)
-            components = DvcSettings.components(ctx, dvc)
+            components = DvcSettings.components(dvc)
         elif option == "placeholder":
             embed, components = None, None
         elif option == "return":

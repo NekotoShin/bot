@@ -33,12 +33,13 @@ class DvcSettings:
     """
 
     @staticmethod
-    def embed(ctx: interactions.BaseContext, dvc: DvcSettingsModel) -> Embed:
+    def embed(ctx: interactions.BaseContext, dvc: DvcSettingsModel, msg: str = None, success: bool = None) -> Embed:
         """
         Create a default dynamic voice channel settings embed.
         """
         emoji = 1252837291957682208 if dvc.enabled else 1252837290146005094
-        embed = Embed("這裡是動態語音頻道的設定。").set_thumbnail(f"https://cdn.discordapp.com/emojis/{emoji}.png")
+        embed = Embed(msg or "這裡是動態語音頻道的設定。", success)
+        embed.set_thumbnail(f"https://cdn.discordapp.com/emojis/{emoji}.png")
         embed.add_field(
             name="目前狀態",
             value=f"<:reply:1252488534619852821> 動態語音已{'啟用' if dvc.enabled else '停用'}",
@@ -56,7 +57,7 @@ class DvcSettings:
         return embed
 
     @staticmethod
-    def components(ctx: interactions.BaseContext, dvc: DvcSettingsModel) -> List[interactions.ActionRow]:
+    def components(dvc: DvcSettingsModel) -> List[interactions.ActionRow]:
         """
         Create components for the dynamic voice channel settings.
         """
@@ -103,10 +104,12 @@ class DvcSettings:
         return interactions.Modal(
             interactions.InputText(
                 label="名稱格式",
-                style=interactions.TextStyles.PARAGRAPH,
+                style=interactions.TextStyles.SHORT,
                 placeholder="請輸入希望使用的頻道名稱格式",
                 value=current,
                 custom_id="name",
+                min_length=1,
+                max_length=50,
             ),
             interactions.InputText(
                 label="可用變數 (不用填寫這格)",
@@ -121,3 +124,37 @@ class DvcSettings:
             title="動態語音頻道 - 名稱格式",
             custom_id="dvc_settings:name",
         )
+
+    @staticmethod
+    def channel_embed() -> Embed:
+        """
+        Create an embed for the dynamic voice channel channel settings.
+        """
+        return Embed("請選擇一個動態語音大廳頻道。")
+
+    @staticmethod
+    def channel_components() -> List[interactions.ActionRow]:
+        """
+        Create components for the dynamic voice channel channel settings.
+        """
+        return [
+            interactions.ActionRow(
+                interactions.ChannelSelectMenu(
+                    channel_types=[interactions.ChannelType.GUILD_VOICE],
+                    custom_id="dvc_settings:channel_select",
+                    placeholder="🔊｜請選擇一個語音頻道",
+                )
+            ),
+            interactions.ActionRow(
+                interactions.StringSelectMenu(
+                    interactions.StringSelectOption(
+                        label="NekoOS • 大廳頻道",
+                        value="placeholder",
+                        emoji=interactions.PartialEmoji(id=1250973097486712842),
+                        default=True,
+                    ),
+                    Settings.return_option(),
+                    custom_id="dvc_settings:channel_action_select",
+                ),
+            ),
+        ]

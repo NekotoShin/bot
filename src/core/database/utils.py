@@ -15,30 +15,35 @@ You should have received a copy of the GNU Affero General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
 
+from typing import Optional
+
 from interactions import Snowflake_Type
 from scyllapy.extra_types import BigInt
 
 
-def to_bigint(snowflake: Snowflake_Type) -> BigInt:
+def to_bigint(snowflake: Snowflake_Type, as_int: Optional[bool] = False) -> BigInt:
     """
     Convert a snowflake (uint64) to a bigint.
 
     :param snowflake: The snowflake to convert.
     :type snowflake: Snowflake_Type
+    :param as_int: Whether to return the bigint as an int or BigInt.
+    :type as_int: Optional[bool]
 
     :return: The bigint representation of the snowflake.
     :rtype: BigInt
     """
-    return BigInt(int(snowflake) - 9223372036854775808)
+    value = int(snowflake) - 9223372036854775808
+    return value if as_int else BigInt(value)
 
 
-def to_snowflake(bigint: BigInt) -> int:
+def to_snowflake(bigint: int) -> int:
     """
     Convert a bigint to a snowflake.
     Revert the conversion done by to_bigint.
 
     :param bigint: The bigint to convert.
-    :type bigint: BigInt
+    :type bigint: int
 
     :return: The snowflake of which the bigint was converted from.
     :rtype: int

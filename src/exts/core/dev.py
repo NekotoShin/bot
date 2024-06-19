@@ -1,3 +1,20 @@
+"""
+Copyright (C) 2024  猫戸シン
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU Affero General Public License as published
+by the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU Affero General Public License for more details.
+
+You should have received a copy of the GNU Affero General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+"""
+
 import glob
 import re
 from functools import lru_cache
@@ -15,13 +32,13 @@ class DeveloperModal(BaseExtension):
     The extension class for the developer modal.
     """
 
-    eval_regex = re.compile(r"(\d+):developer:eval:(\d+)")
+    eval_regex = re.compile(r"(\d+):developer:eval")
     extensions_regex = re.compile(r"(\d+):developer:extensions:(\d+):(load|unload|reload)")
 
     ext_modes = {"load": "啟用", "unload": "停用", "reload": "重新載入"}
 
     @staticmethod
-    def eval_modal(author_id: int, ori: int) -> interactions.Modal:
+    def eval_modal(author_id: int) -> interactions.Modal:
         """
         The modal for the eval command.
         """
@@ -33,7 +50,7 @@ class DeveloperModal(BaseExtension):
                 placeholder="請輸入需要執行的Python程式碼",
             ),
             title="執行程式碼",
-            custom_id=f"{author_id}:developer:eval:{ori}",
+            custom_id=f"{author_id}:developer:eval",
         )
 
     @interactions.modal_callback(eval_regex)
@@ -48,8 +65,8 @@ class DeveloperModal(BaseExtension):
             success = True
         matched = self.eval_regex.match(ctx.custom_id)
         await ctx.edit(
-            matched.group(2),
-            embed=Embed("開發者工具 - 執行程式碼", description=desc, success=success),
+            "@original",
+            embed=Embed(desc, success),
             components=DeveloperComponents.eval_completed(matched.group(1)),
         )
 
@@ -74,7 +91,7 @@ class DeveloperModal(BaseExtension):
         regex = self.extensions_regex.match(ctx.custom_id)
         author_id, ori, option = regex.group(1), regex.group(2), regex.group(3)
 
-        loaded, unloaded = Developer.get_extensions(self.client)
+        loaded, unloaded = DeveloperCore.get_extensions(self.client)
         reload_self = False
         success = False
         if not extension.startswith("src.exts."):
@@ -112,7 +129,7 @@ class DeveloperModal(BaseExtension):
                 self.client.reload_extension(extension)
                 desc = f"插件 `{extension}` 已經成功重新載入。"
                 success = True
-        embed = Embed(f"開發者工具 - {self.ext_modes[option]}插件", description=desc, success=success)
+        embed = Embed(desc, success)
         await ctx.edit(ori, embed=embed, components=DeveloperComponents.extensions(author_id))
         if reload_self:
             self.client.reload_extension(self.extension_name)
@@ -136,6 +153,12 @@ class DeveloperComponents(BaseExtension):
             interactions.ActionRow(
                 interactions.StringSelectMenu(
                     interactions.StringSelectOption(
+                        label="NekoOS • 開發者工具",
+                        value="placeholder",
+                        emoji=interactions.PartialEmoji(name="🛠️"),
+                        default=True,
+                    ),
+                    interactions.StringSelectOption(
                         label="插件管理",
                         description="管理機器人的插件 (啟用/停用/重新載入)",
                         value="extensions",
@@ -145,7 +168,7 @@ class DeveloperComponents(BaseExtension):
                         label="執行程式碼",
                         description="透過機器人執行Python程式碼 (eval)",
                         value="eval",
-                        emoji=interactions.PartialEmoji(name="🐍"),
+                        emoji=interactions.PartialEmoji(name="💻"),
                     ),
                     interactions.StringSelectOption(
                         label="關閉機器人",
@@ -153,8 +176,26 @@ class DeveloperComponents(BaseExtension):
                         value="shutdown",
                         emoji=interactions.PartialEmoji(name="🛑"),
                     ),
-                    placeholder="👨‍💻｜請選擇需要執行的行動",
                     custom_id=f"{author_id}:developer:select",
+                )
+            )
+        ]
+
+    @staticmethod
+    def shutdown() -> List[interactions.ActionRow]:
+        """
+        The components for the shutdown command.
+        """
+        return [
+            interactions.ActionRow(
+                interactions.StringSelectMenu(
+                    interactions.StringSelectOption(
+                        label="NekoOS • 關閉機器人",
+                        value="placeholder",
+                        emoji=interactions.PartialEmoji(name="🛑"),
+                        default=True,
+                    ),
+                    disabled=True,
                 )
             )
         ]
@@ -166,16 +207,19 @@ class DeveloperComponents(BaseExtension):
             return await ctx.respond(embed=Embed.declined("select"), ephemeral=True)
         option = ctx.values[0]
         if option == "eval":
-            return await ctx.send_modal(DeveloperModal.eval_modal(author_id, ctx.message.id))
+            return await ctx.send_modal(DeveloperModal.eval_modal(author_id))
 
         await ctx.defer(edit_origin=True)
         if option == "extensions":
             await ctx.edit_origin(
-                embed=Embed("開發者工具 - 插件管理", description="管理機器人插件的各項功能"),
+                embed=Embed("管理機器人插件的各項功能"),
                 components=DeveloperComponents.extensions(author_id),
             )
         elif option == "shutdown":
-            await ctx.edit_origin(embed=Embed(description="即將關閉機器人。", success=True), components=[])
+            await ctx.edit_origin(
+                embed=Embed("即將關閉機器人。", success=True),
+                components=DeveloperComponents.shutdown(),
+            )
             await self.client.stop()
 
     @staticmethod
@@ -186,6 +230,12 @@ class DeveloperComponents(BaseExtension):
         return [
             interactions.ActionRow(
                 interactions.StringSelectMenu(
+                    interactions.StringSelectOption(
+                        label="NekoOS • 執行程式碼",
+                        value="placeholder",
+                        emoji=interactions.PartialEmoji(name="💻"),
+                        default=True,
+                    ),
                     interactions.StringSelectOption(
                         label="再次執行",
                         description="繼續執行其他Python程式碼",
@@ -198,7 +248,6 @@ class DeveloperComponents(BaseExtension):
                         value="back",
                         emoji=interactions.PartialEmoji(name="🔙"),
                     ),
-                    placeholder="👨‍💻｜請選擇需要執行的行動",
                     custom_id=f"{author_id}:developer:eval:completed",
                 )
             )
@@ -211,11 +260,11 @@ class DeveloperComponents(BaseExtension):
             return await ctx.respond(embed=Embed.declined("select"), ephemeral=True)
         option = ctx.values[0]
         if option == "eval":
-            return await ctx.send_modal(DeveloperModal.eval_modal(author_id, ctx.message.id))
+            return await ctx.send_modal(DeveloperModal.eval_modal(author_id))
         await ctx.defer(edit_origin=True)
         if option == "back":
             return await ctx.edit(
-                embed=Developer.developer_embed(), components=DeveloperComponents.developer(author_id)
+                embed=DeveloperCore.developer_embed(), components=DeveloperComponents.developer(author_id)
             )
 
     @staticmethod
@@ -223,46 +272,56 @@ class DeveloperComponents(BaseExtension):
         """
         The components for the extensions command.
         """
+        options = [
+            interactions.StringSelectOption(
+                label="NekoOS • 插件管理",
+                value="placeholder",
+                emoji=interactions.PartialEmoji(name="🔌"),
+                default=True,
+            ),
+        ]
+
+        if not skip_list:
+            options.append(
+                interactions.StringSelectOption(
+                    label="列表",
+                    description="列出所有已經啟用及可用的插件",
+                    value="list",
+                    emoji=interactions.PartialEmoji(name="📋"),
+                )
+            )
+        options.extend(
+            [
+                interactions.StringSelectOption(
+                    label="啟用",
+                    description="啟用指定的插件",
+                    value="load",
+                    emoji=interactions.PartialEmoji(name="🟢"),
+                ),
+                interactions.StringSelectOption(
+                    label="停用",
+                    description="停用指定的插件",
+                    value="unload",
+                    emoji=interactions.PartialEmoji(name="🔴"),
+                ),
+                interactions.StringSelectOption(
+                    label="重新載入",
+                    description="重新載入指定的插件",
+                    value="reload",
+                    emoji=interactions.PartialEmoji(name="🔄"),
+                ),
+                interactions.StringSelectOption(
+                    label="返回",
+                    description="回到全部開發者工具",
+                    value="back",
+                    emoji=interactions.PartialEmoji(name="🔙"),
+                ),
+            ]
+        )
         return [
             interactions.ActionRow(
                 interactions.StringSelectMenu(
-                    *(
-                        []
-                        if skip_list
-                        else [
-                            interactions.StringSelectOption(
-                                label="列表",
-                                description="列出所有已經啟用及可用的插件",
-                                value="list",
-                                emoji=interactions.PartialEmoji(name="📋"),
-                            )
-                        ]
-                    ),
-                    interactions.StringSelectOption(
-                        label="啟用",
-                        description="啟用指定的插件",
-                        value="load",
-                        emoji=interactions.PartialEmoji(name="🟢"),
-                    ),
-                    interactions.StringSelectOption(
-                        label="停用",
-                        description="停用指定的插件",
-                        value="unload",
-                        emoji=interactions.PartialEmoji(name="🔴"),
-                    ),
-                    interactions.StringSelectOption(
-                        label="重新載入",
-                        description="重新載入指定的插件",
-                        value="reload",
-                        emoji=interactions.PartialEmoji(name="🔄"),
-                    ),
-                    interactions.StringSelectOption(
-                        label="返回",
-                        description="回到全部開發者工具",
-                        value="back",
-                        emoji=interactions.PartialEmoji(name="🔙"),
-                    ),
-                    placeholder="🔌｜請選擇需要執行的行動",
+                    *options,
                     custom_id=f"{author_id}:developer:extensions",
                 )
             )
@@ -279,8 +338,8 @@ class DeveloperComponents(BaseExtension):
 
         await ctx.defer(edit_origin=True)
         if option == "list":
-            loaded, unloaded = Developer.get_extensions(self.client)
-            embed = Embed("開發者工具 - 插件列表", description="所有已經啟用及可用的插件")
+            loaded, unloaded = DeveloperCore.get_extensions(self.client)
+            embed = Embed("所有已經啟用及可用的插件")
             if not loaded:
                 value = "\\*沒有啟用的插件\\*"
             else:
@@ -293,12 +352,12 @@ class DeveloperComponents(BaseExtension):
                 value = "\n".join(i.removeprefix("src.exts.") for i in unloaded)
                 value = f"```\n{value}\n```"
             embed.add_field(name="可用的插件", value=value)
-            await ctx.edit(embed=embed, components=DeveloperComponents.extensions(True))
+            await ctx.edit(embed=embed, components=DeveloperComponents.extensions(author_id, True))
         elif option == "back":
-            await ctx.edit(embed=Developer.developer_embed(), components=DeveloperComponents.developer(author_id))
+            await ctx.edit(embed=DeveloperCore.developer_embed(), components=DeveloperComponents.developer(author_id))
 
 
-class Developer(BaseExtension):
+class DeveloperCore(BaseExtension):
     """
     The extension class for the development.
     """
@@ -317,7 +376,7 @@ class Developer(BaseExtension):
         all_exts = [
             i.removesuffix(".py").replace("/", ".")
             for i in glob.glob("src/exts/**/*.py", recursive=True)
-            if not i.endswith("template.py")
+            if not i.endswith("template.py") and not i.endswith("__init__.py")
         ]
         loaded = {i.extension_name for i in client.ext.values()}
         return loaded, [i for i in all_exts if i not in loaded]
@@ -327,12 +386,12 @@ class Developer(BaseExtension):
         """
         The embed for the developer command.
         """
-        return Embed("開發者工具", description="僅限機器人開發者使用的功能")
+        return Embed("僅限機器人開發者使用的功能")
 
     @prefixed_commands.prefixed_command(name="developer", aliases=["dev", "owner", "help"])
     @interactions.check(interactions.is_owner())
     async def developer(self, ctx: prefixed_commands.PrefixedContext):
-        await ctx.reply(embed=Developer.developer_embed(), components=DeveloperComponents.developer(ctx.author.id))
+        await ctx.reply(embed=DeveloperCore.developer_embed(), components=DeveloperComponents.developer(ctx.author.id))
 
     async def pre_run(self, ctx: prefixed_commands.PrefixedContext):
         self.logger.warning(
@@ -368,4 +427,4 @@ def setup(client: Client):
     """
     DeveloperComponents(client)
     DeveloperModal(client)
-    Developer(client)
+    DeveloperCore(client)

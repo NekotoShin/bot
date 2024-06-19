@@ -26,7 +26,7 @@ import psutil
 from interactions.ext import prefixed_commands
 from scyllapy.exceptions import ScyllaPyDBError
 
-from src.core import Config, Database, InterceptHandler, Logger
+from src.core import Config, DatabaseCore, InterceptHandler, Logger
 from src.utils import Embed
 
 
@@ -68,7 +68,7 @@ class Client(interactions.Client):
         )
 
         # prepare the database instance
-        self.database = Database(
+        self.database = DatabaseCore(
             hosts=self.config["database.hosts"],
             username=self.config["database.username"],
             password=self.config["database.password"],
@@ -127,7 +127,7 @@ class Client(interactions.Client):
         """
         if isinstance(permissions, interactions.Permissions):
             permissions = permissions.value
-        return f"https://discord.com/oauth2/authorize?client_id={self.user.id}" f"&scope=bot&permissions={permissions}"
+        return f"https://discord.com/oauth2/authorize?client_id={self.user.id}&scope=bot&permissions={permissions}"
 
     @staticmethod
     def has_permissions(has: interactions.Permissions, *required: Union[interactions.Permissions, int]) -> bool:
@@ -256,5 +256,5 @@ class BaseExtension(interactions.Extension):
         return self.client.config
 
     @property
-    def database(self) -> Database:
+    def global_database(self) -> DatabaseCore:
         return self.client.database

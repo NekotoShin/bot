@@ -1,3 +1,20 @@
+"""
+Copyright (C) 2024  猫戸シン
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU Affero General Public License as published
+by the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU Affero General Public License for more details.
+
+You should have received a copy of the GNU Affero General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+"""
+
 from typing import TYPE_CHECKING, Literal, Optional
 
 import interactions
@@ -27,9 +44,7 @@ class Embed(interactions.Embed):
 
     def __init__(
         self,
-        name: Optional[str] = None,
         description: Optional[str] = None,
-        url: Optional[str] = None,
         success: Optional[bool] = None,
         **kwargs,
     ) -> None:
@@ -44,7 +59,7 @@ class Embed(interactions.Embed):
             kwargs["description"] = description.replace(self._client.http.token, "[REDACTED TOKEN]")
 
         super().__init__(**kwargs)
-        self.set_author(name=name or "猫戸助手", url=url, icon_url=self._client.user.avatar.url)
+        self.set_author(name="猫戸助手", icon_url=self._client.user.avatar.url)
 
     @classmethod
     def declined(cls, ctype: Optional[Literal["button", "select"]] = "button") -> "Embed":
@@ -58,4 +73,4 @@ class Embed(interactions.Embed):
         """
         if ctype not in ("button", "select"):
             raise ValueError("The component type must be either 'button' or 'select'.")
-        return cls("操作失敗", f"你不能使用這個{'按鈕' if ctype == 'button' else '選單'}。", success=False)
+        return cls(f"你不能使用這個{'按鈕' if ctype == 'button' else '選單'}。", success=False)

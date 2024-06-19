@@ -16,20 +16,43 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
 
 import asyncio
-from typing import List, Optional
+from typing import Any, Dict, Iterable, List, Optional, Union
 
 from scyllapy import Consistency, ExecutionProfile, Scylla
 
-__all__ = ("Database",)
+__all__ = ("DatabaseCore",)
 
 
-class Database:
+class Queries:
+    """
+    The class for storing queries.
+    """
+
+    def __init__(self) -> None:
+        self.queries = []
+
+    def add(self, query: str, params: Optional[Union[Iterable[Any], Dict[str, Any]]] = None) -> None:
+        """
+        Adds a query to the list.
+        """
+        self.queries.append((query, params))
+
+    async def execute(self, scylla: Scylla) -> None:
+        """
+        Executes the queries.
+        """
+        for query, params in self.queries:
+            await scylla.execute(query, params)
+        self.queries.clear()
+
+
+class DatabaseCore:
     """
     The database class of the bot.
     """
 
     _ready = asyncio.Event()
-    _profile = ExecutionProfile(consistency=Consistency.ALL)
+    _profile = ExecutionProfile(consistency=Consistency.QUORUM)
 
     def __init__(
         self,
@@ -47,6 +70,8 @@ class Database:
             default_execution_profile=self._profile,
             **kwargs
         )
+        self.type_queries = Queries()
+        self.table_queries = Queries()
 
     # Connection
 
@@ -61,12 +86,8 @@ class Database:
         Initializes the database.
         """
         await self.scylla.startup()
-
-        # create types
-
-        # create tables
-
-        # set ready flag
+        await self.type_queries.execute(self.scylla)
+        await self.table_queries.execute(self.scylla)
         self._ready.set()
 
     async def close(self) -> None:
@@ -75,3 +96,24 @@ class Database:
         """
         if self._ready.is_set():
             await self.scylla.shutdown()
+
+
+class FeatureDatabase:
+    """
+    The database class for each features.
+    """
+
+    def __init__(self, core: DatabaseCore) -> None:
+        self.core = core
+
+    async def execute(self, *args, **kwargs):
+        """
+        Executes a query.
+        """
+        return await self.core.scylla.execute(*args, **kwargs)
+
+    async def wait_until_ready(self) -> None:
+        """
+        Waits until the database is ready.
+        """
+        await self.core.wait_until_ready()

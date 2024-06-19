@@ -16,5 +16,6 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
 
 from .embed import Embed
+from .generators import DvcSettings, Settings
 
-__all__ = ("Embed",)
+__all__ = ("Embed", "Settings", "DvcSettings")

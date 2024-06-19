@@ -15,8 +15,24 @@ You should have received a copy of the GNU Affero General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
 
-from .config import Config
-from .database import DatabaseCore, to_bigint, to_snowflake
-from .logging import InterceptHandler, Logger
+from ..core import DatabaseCore, FeatureDatabase
 
-__all__ = ("Config", "DatabaseCore", "Logger", "InterceptHandler", "to_bigint", "to_snowflake")
+__all__ = ("SettingsDatabase",)
+
+
+class SettingsDatabase(FeatureDatabase):
+    """
+    The database class of the bot.
+    """
+
+    def __init__(self, core: DatabaseCore) -> None:
+        super().__init__(core)
+        self.core.table_queries.add(
+            """
+            CREATE TABLE IF NOT EXISTS guilds (
+                id BIGINT,
+                dvc frozen<dvcSettings>,
+                PRIMARY KEY (id)
+            );
+            """
+        )

@@ -174,6 +174,7 @@ class DvcComponents(DvcExtension):
             dvc.enabled = False
             await self.database.set_guild_dvc_settings(ctx.guild.id, models.DvcSettings.create(**dvc.__dict__))
             async for i in self.database.get_guild_dvcs(ctx.guild.id):
+                await self.database.remove_dvc(i)
                 await self.client.http.delete_channel(i)
             return DvcSettings.embed(ctx, dvc, "成功停用動態語音頻道。", True), DvcSettings.components(dvc)
         if dvc.lobby == -1 or not await self.client.fetch_channel(dvc.lobby):

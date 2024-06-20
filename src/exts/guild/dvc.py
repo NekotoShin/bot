@@ -17,26 +17,11 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 import asyncio
 import re
-from typing import List, Tuple, Union
+from typing import List, Tuple
 
 import interactions  # noqa: F401
-from interactions import (
-    MISSING,
-    TYPE_ALL_CHANNEL,
-    UPLOADABLE_TYPE,
-    Absent,
-    AutoArchiveDuration,
-    ChannelFlags,
-    ChannelType,
-    PermissionOverwrite,
-    Snowflake_Type,
-    VideoQualityMode,
-    VoiceRegion,
-    process_permission_overwrites,
-    to_optional_snowflake,
-)
+from interactions import MISSING, TYPE_ALL_CHANNEL, Absent
 from interactions.api.events import VoiceStateUpdate
-from interactions.client.utils.serializer import to_image_data
 
 from src.core.database import DvcDatabase, models
 from src.main import BaseExtension, Client
@@ -69,26 +54,8 @@ class DvcModals(DvcExtension):
         channel: "TYPE_ALL_CHANNEL",
         *,
         name: Absent[str] = MISSING,
-        icon: Absent[UPLOADABLE_TYPE] = MISSING,
-        type: Absent[ChannelType] = MISSING,
-        position: Absent[int] = MISSING,
-        topic: Absent[str] = MISSING,
-        nsfw: Absent[bool] = MISSING,
-        rate_limit_per_user: Absent[int] = MISSING,
         bitrate: Absent[int] = MISSING,
         user_limit: Absent[int] = MISSING,
-        permission_overwrites: Absent[
-            Union[dict, PermissionOverwrite, List[Union[dict, PermissionOverwrite]]]
-        ] = MISSING,
-        parent_id: Absent[Snowflake_Type] = MISSING,
-        rtc_region: Absent[Union["VoiceRegion", str]] = MISSING,
-        video_quality_mode: Absent[VideoQualityMode] = MISSING,
-        default_auto_archive_duration: Absent[AutoArchiveDuration] = MISSING,
-        flags: Absent[Union[int, ChannelFlags]] = MISSING,
-        archived: Absent[bool] = MISSING,
-        auto_archive_duration: Absent[AutoArchiveDuration] = MISSING,
-        locked: Absent[bool] = MISSING,
-        invitable: Absent[bool] = MISSING,
         reason: Absent[str] = MISSING,
         **kwargs,
     ) -> "TYPE_ALL_CHANNEL":
@@ -97,24 +64,8 @@ class DvcModals(DvcExtension):
         """
         payload = {
             "name": name,
-            "icon": to_image_data(icon),
-            "type": type,
-            "position": position,
-            "topic": topic,
-            "nsfw": nsfw,
-            "rate_limit_per_user": rate_limit_per_user,
             "bitrate": bitrate,
             "user_limit": user_limit,
-            "permission_overwrites": process_permission_overwrites(permission_overwrites),
-            "parent_id": to_optional_snowflake(parent_id),
-            "rtc_region": rtc_region.id if isinstance(rtc_region, VoiceRegion) else rtc_region,
-            "video_quality_mode": video_quality_mode,
-            "default_auto_archive_duration": default_auto_archive_duration,
-            "flags": flags,
-            "archived": archived,
-            "auto_archive_duration": auto_archive_duration,
-            "locked": locked,
-            "invitable": invitable,
             **kwargs,
         }
         channel_data = await self.client.http.modify_channel_raise(channel.id, payload, reason)
@@ -152,7 +103,7 @@ class DvcModals(DvcExtension):
         if not name.strip():
             return await ctx.send(embed=Embed("名稱不能為空。", False))
         try:
-            await self.edit_channel(ctx.channel, name=name)
+            await self.edit_channel(ctx.channel, name=name, reason="動態語音頻道 - 修改名稱")
         except Ratelimited:
             return await ctx.send(embed=Embed("頻道設定變更過於頻繁，請稍後再試。", False))
         await ctx.send(embed=Embed("成功修改語音頻道名稱。", True))
@@ -174,7 +125,7 @@ class DvcModals(DvcExtension):
         if not 8 <= bitrate <= max_bitrate:
             return await ctx.send(embed=Embed(f"位元率必須在 8-{max_bitrate}kbps 之間。", False))
         try:
-            await self.edit_channel(ctx.channel, bitrate=bitrate * 1000)
+            await self.edit_channel(ctx.channel, bitrate=bitrate * 1000, reason="動態語音頻道 - 修改位元率")
         except Ratelimited:
             return await ctx.send(embed=Embed("頻道設定變更過於頻繁，請稍後再試。", False))
         await ctx.send(embed=Embed("成功修改語音頻道位元率。", True))
@@ -195,7 +146,7 @@ class DvcModals(DvcExtension):
         if not 0 <= limit <= 99:
             return await ctx.send(embed=Embed("人數限制必須在 0-99 之間。", False))
         try:
-            await self.edit_channel(ctx.channel, user_limit=limit)
+            await self.edit_channel(ctx.channel, user_limit=limit, reason="動態語音頻道 - 修改人數限制")
         except Ratelimited:
             return await ctx.send(embed=Embed("頻道設定變更過於頻繁，請稍後再試。", False))
         await ctx.send(embed=Embed("成功修改語音頻道人數限制。", True))

@@ -173,11 +173,13 @@ class DvcComponents(DvcExtension):
         if dvc.enabled:
             dvc.enabled = False
             await self.database.set_guild_dvc_settings(ctx.guild.id, models.DvcSettings.create(**dvc.__dict__))
+            async for i in self.database.get_guild_dvcs(ctx.guild.id):
+                await self.client.http.delete_channel(i)
             return DvcSettings.embed(ctx, dvc, "成功停用動態語音頻道。", True), DvcSettings.components(dvc)
-        if not dvc.lobby or not await self.client.fetch_channel(dvc.lobby):
+        if dvc.lobby == -1 or not await self.client.fetch_channel(dvc.lobby):
             return DvcSettings.embed(ctx, dvc, "請先設置大廳頻道。", False), DvcSettings.components(dvc)
         if not dvc.name:
-            return DvcSettings.failed_embed(ctx, dvc, "請先設置名稱格式。", False), DvcSettings.components(dvc)
+            return DvcSettings.embed(ctx, dvc, "請先設置名稱格式。", False), DvcSettings.components(dvc)
         dvc.enabled = True
         await self.database.set_guild_dvc_settings(ctx.guild.id, models.DvcSettings.create(**dvc.__dict__))
         return DvcSettings.embed(ctx, dvc, "成功啟用動態語音頻道。", True), DvcSettings.components(dvc)

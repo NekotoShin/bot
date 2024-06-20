@@ -76,6 +76,20 @@ class DvcDatabase(FeatureDatabase):
         async for row in result:
             yield to_snowflake(row["id"])
 
+    async def get_guild_dvcs(self, guild_id: int) -> AsyncGenerator[int, None]:
+        """
+        Get all dynamic voice channels in a guild.
+
+        :param guild_id: The guild ID.
+        :type guild_id: int
+
+        :return: An async generator of all dynamic voice channels in the guild.
+        :rtype: AsyncGenerator[int, None]
+        """
+        result = await self.execute("SELECT id FROM dvc WHERE guild_id = ?;", (to_bigint(guild_id),), paged=True)
+        async for row in result:
+            yield to_snowflake(row["id"])
+
     async def add_dvc(self, channel_id: int, owner_id: int, guild_id: int) -> None:
         """
         Add a dynamic voice channel.

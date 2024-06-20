@@ -26,8 +26,15 @@ import psutil
 from interactions.ext import prefixed_commands
 from scyllapy.exceptions import ScyllaPyDBError
 
-from src.core import Config, DatabaseCore, FeatureDatabase, InterceptHandler, Logger
-from src.core.database.features import DvcDatabase, SettingsDatabase
+from src.core import (
+    Config,
+    DatabaseCore,
+    FeatureDatabase,
+    InterceptHandler,
+    Logger,
+    ModifiedHTTPClient,
+)
+from src.core.database import DvcDatabase, SettingsDatabase
 from src.utils import Embed
 
 
@@ -89,6 +96,11 @@ class Client(interactions.Client):
         )
         prefixed_commands.setup(self, generate_prefixes=prefixed_commands.when_mentioned_or("!"))
 
+        # override the default http client
+        self.http: ModifiedHTTPClient = ModifiedHTTPClient(
+            logger=self.logger, show_ratelimit_tracebacks=self.http.show_ratelimit_traceback, proxy=self.http.proxy
+        )
+
         # load extensions
         for i in glob.glob("src/exts/**/*.py", recursive=True):
             if i.endswith("template.py"):
@@ -109,15 +121,10 @@ class Client(interactions.Client):
             self.logger.info("Database connection established.")
         self.logger.info(
             "\n-------------------------"
-            "\nLogged in as: {}#{} ({})"
-            "\nShards Count: {}"
-            "\nMemory Usage: {:.2f} MB"
+            f"\nLogged in as: {self.user.username}#{self.user.discriminator} ({self.user.id})"
+            f"\nShards Count: {self.total_shards}"
+            f"\nMemory Usage: {psutil.Process(os.getpid()).memory_info().rss / (1024**2):.2f} MB"
             "\n-------------------------",
-            self.user.username,
-            self.user.discriminator,
-            self.user.id,
-            self.total_shards,
-            psutil.Process(os.getpid()).memory_info().rss / (1024**2),
         )
 
     def get_invite_url(self, permissions: Union[int, interactions.Permissions]) -> str:

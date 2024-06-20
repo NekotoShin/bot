@@ -15,6 +15,21 @@ You should have received a copy of the GNU Affero General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
 
-from .dvc import DvcPanel, DvcSettings
+import interactions
 
-__all__ = ("DvcSettings", "DvcPanel")
+from .const import DISCORD_EPOCH
+
+__all__ = ("snowflake_time",)
+
+
+def snowflake_time(snowflake: interactions.Snowflake_Type) -> int:
+    """
+    Get the timestamp of a Discord snowflake.
+
+    :param snowflake: The snowflake.
+    :type snowflake: Snowflake_Type
+
+    :return: The timestamp.
+    :rtype: int
+    """
+    return ((int(snowflake) >> 22) + DISCORD_EPOCH) / 1000

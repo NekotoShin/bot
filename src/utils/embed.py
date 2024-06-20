@@ -19,6 +19,8 @@ from typing import TYPE_CHECKING, Literal, Optional
 
 import interactions
 
+from .const import REPLY_EMOJI
+
 if TYPE_CHECKING:
     from src.main import Client
 
@@ -55,11 +57,31 @@ class Embed(interactions.Embed):
         else:
             kwargs["color"] = kwargs.get("color", "#FEE75C")
         if description:
-            description = f"<:reply:1252488534619852821> {description}"
+            description = f"{REPLY_EMOJI} {description}"
             kwargs["description"] = description.replace(self._client.http.token, "[REDACTED TOKEN]")
 
         super().__init__(**kwargs)
         self.set_author(name="猫戸助手", icon_url=self._client.user.avatar.url)
+
+    def add_field(self, name: str, value: str, inline: Optional[bool] = False, pre: Optional[bool] = False) -> "Embed":
+        """
+        Adds a new field to the embed.
+
+        :param name: The name of the field.
+        :type name: str
+        :param value: The value of the field.
+        :type value: str
+        :param inline: Whether the field should be displayed inline, defaults to False
+        :type inline: Optional[bool]
+        :param pre: If the field is preformatted
+        :type pre: Optional[bool]
+
+        :return: The embed instance.
+        :rtype: Embed
+        """
+        if not pre:
+            value = "".join(f"{REPLY_EMOJI} {i}" for i in value.splitlines(True))
+        return super().add_field(name, value, inline)
 
     @classmethod
     def declined(cls, ctype: Optional[Literal["button", "select"]] = "button") -> "Embed":

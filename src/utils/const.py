@@ -15,6 +15,16 @@ You should have received a copy of the GNU Affero General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
 
-from .dvc import DvcPanel, DvcSettings
+import interactions
 
-__all__ = ("DvcSettings", "DvcPanel")
+__all__ = (
+    "REPLY_EMOJI",
+    "PLACEHOLDER_EMOJI",
+    "DISCORD_EPOCH",
+)
+
+REPLY_EMOJI = "<:reply:1252488534619852821>"
+
+PLACEHOLDER_EMOJI = interactions.PartialEmoji(id=1250973097486712842)
+
+DISCORD_EPOCH = 1420070400000

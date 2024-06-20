@@ -125,7 +125,18 @@ class DvcDatabase(FeatureDatabase):
         :rtype: int
         """
         result = await self.execute("SELECT owner_id FROM dvc WHERE id = ?;", (to_bigint(channel_id),))
-        return result.first()["owner_id"]
+        return to_snowflake(result.first()["owner_id"])
+
+    async def set_dvc_owner(self, channel_id: int, owner_id: int) -> None:
+        """
+        Set the owner of a dynamic voice channel.
+
+        :param channel_id: The channel ID.
+        :type channel_id: int
+        :param owner_id: The owner ID.
+        :type owner_id: int
+        """
+        await self.execute("UPDATE dvc SET owner_id = ? WHERE id = ?;", (to_bigint(owner_id), to_bigint(channel_id)))
 
     async def get_guild_dvc_settings(self, guild_id: int) -> DvcSettings:
         """

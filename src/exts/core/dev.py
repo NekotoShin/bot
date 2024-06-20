@@ -345,13 +345,13 @@ class DeveloperComponents(BaseExtension):
             else:
                 value = "\n".join(i.removeprefix("src.exts.") for i in loaded)
                 value = f"```\n{value}\n```"
-            embed.add_field(name="已啟用的插件", value=value)
+            embed.add_field(name="已啟用的插件", value=value, pre=True)
             if not unloaded:
                 value = "\\*沒有可用的插件\\*"
             else:
                 value = "\n".join(i.removeprefix("src.exts.") for i in unloaded)
                 value = f"```\n{value}\n```"
-            embed.add_field(name="可用的插件", value=value)
+            embed.add_field(name="可用的插件", value=value, pre=True)
             await ctx.edit(embed=embed, components=DeveloperComponents.extensions(author_id, True))
         elif option == "back":
             await ctx.edit(embed=DeveloperCore.developer_embed(), components=DeveloperComponents.developer(author_id))

@@ -19,7 +19,8 @@ from typing import List
 
 import interactions
 
-from src.utils.embed import Embed
+from ...const import PLACEHOLDER_EMOJI
+from ...embed import Embed
 
 __all__ = ("Settings",)
 
@@ -66,7 +67,7 @@ class Settings:
             interactions.StringSelectOption(
                 label="NekoOS • 系統設定",
                 value="placeholder",
-                emoji=interactions.PartialEmoji(id=1250973097486712842),
+                emoji=PLACEHOLDER_EMOJI,
                 default=True,
             ),
         ]
@@ -114,7 +115,7 @@ class Settings:
                     interactions.StringSelectOption(
                         label="NekoOS • 伺服器設定",
                         value="placeholder",
-                        emoji=interactions.PartialEmoji(id=1250973097486712842),
+                        emoji=PLACEHOLDER_EMOJI,
                         default=True,
                     ),
                     interactions.StringSelectOption(
@@ -157,7 +158,7 @@ class Settings:
             interactions.StringSelectOption(
                 label="NekoOS • 伺服器功能設定",
                 value="placeholder",
-                emoji=interactions.PartialEmoji(id=1250973097486712842),
+                emoji=PLACEHOLDER_EMOJI,
                 default=True,
             ),
         ]
@@ -204,7 +205,7 @@ class Settings:
                     interactions.StringSelectOption(
                         label="NekoOS • 伺服器偏好設定",
                         value="placeholder",
-                        emoji=interactions.PartialEmoji(id=1250973097486712842),
+                        emoji=PLACEHOLDER_EMOJI,
                         default=True,
                     ),
                     Settings.return_option(),
@@ -235,7 +236,7 @@ class Settings:
             interactions.StringSelectOption(
                 label="NekoOS • 個人化選項",
                 value="placeholder",
-                emoji=interactions.PartialEmoji(id=1250973097486712842),
+                emoji=PLACEHOLDER_EMOJI,
                 default=True,
             ),
         ]

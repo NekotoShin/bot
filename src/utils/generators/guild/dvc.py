@@ -22,9 +22,153 @@ import interactions
 from src.core.database.models import DvcSettings as DvcSettingsModel
 from src.utils.embed import Embed
 
-from ..core.settings import Settings
+from ...const import PLACEHOLDER_EMOJI
+from ...discord import snowflake_time
+from ..core import Settings
 
-__all__ = ("DvcSettings",)
+__all__ = ("DvcSettings", "DvcPanel")
+
+
+class DvcPanel:
+    """
+    This class contains methods to generate embed responses and components for the dynamic voice channel panel.
+    """
+
+    @staticmethod
+    def embed(owner_id: int, channel_id: int) -> Embed:
+        """
+        Create a default dynamic voice channel panel embed.
+        """
+        embed = Embed("你可以在這裡控制這個動態語音頻道。")
+        embed.add_field(
+            name="詳細資料",
+            value=f"擁有者: <@{owner_id}>\n開啟時間: <t:{int(snowflake_time(channel_id))}:F>",
+            inline=True,
+        )
+        return embed
+
+    @staticmethod
+    def components() -> List[interactions.ActionRow]:
+        """
+        Create components for the dynamic voice channel panel.
+        """
+        return [
+            interactions.ActionRow(
+                interactions.StringSelectMenu(
+                    interactions.StringSelectOption(
+                        label="NekoOS • 控制面板",
+                        value="placeholder",
+                        emoji=PLACEHOLDER_EMOJI,
+                        default=True,
+                    ),
+                    interactions.StringSelectOption(
+                        label="修改語音頻道名稱",
+                        value="name",
+                        emoji="📝",
+                    ),
+                    interactions.StringSelectOption(
+                        label="修改語音頻道位元率",
+                        value="bitrate",
+                        emoji="🎙️",
+                    ),
+                    interactions.StringSelectOption(
+                        label="修改語音頻道人數上限",
+                        value="limit",
+                        emoji="👤",
+                    ),
+                    interactions.StringSelectOption(
+                        label="轉移語音頻道擁有權",
+                        value="transfer",
+                        emoji="🔄",
+                    ),
+                    interactions.StringSelectOption(
+                        label="關閉語音頻道",
+                        value="close",
+                        emoji="🗑️",
+                    ),
+                    custom_id="dvc_panel:select",
+                )
+            )
+        ]
+
+    @staticmethod
+    def name_modal(current: str) -> interactions.Modal:
+        """
+        Create a modal for the dynamic voice channel name settings.
+        """
+        return interactions.Modal(
+            interactions.InputText(
+                label="動態語音頻道 - 名稱",
+                style=interactions.TextStyles.SHORT,
+                placeholder="請輸入新的語音頻道名稱",
+                value=current,
+                custom_id="name",
+                min_length=1,
+                max_length=100,
+            ),
+            title="動態語音頻道 - 名稱",
+            custom_id="dvc_panel:name",
+        )
+
+    @staticmethod
+    def bitrate_modal(current: int, boost: int) -> interactions.Modal:
+        """
+        Create a modal for the dynamic voice channel bitrate settings.
+        """
+        max_bitrate = [96, 128, 256, 384][boost]
+        return interactions.Modal(
+            interactions.InputText(
+                label=f"位元率 (8-{max_bitrate}kbps)",
+                style=interactions.TextStyles.SHORT,
+                placeholder="請輸入新的語音頻道位元率 (預設: 64kbps)",
+                value=str(current // 1000),
+                custom_id="bitrate",
+                min_length=1,
+                max_length=3,
+            ),
+            title="動態語音頻道 - 位元率",
+            custom_id="dvc_panel:bitrate",
+        )
+
+    @staticmethod
+    def limit_modal(current: int) -> interactions.Modal:
+        """
+        Create a modal for the dynamic voice channel limit settings.
+        """
+        return interactions.Modal(
+            interactions.InputText(
+                label="上限 (0-99, 0: 無上限)",
+                style=interactions.TextStyles.SHORT,
+                placeholder="請輸入新的語音頻道人數上限 (預設: 0)",
+                value=str(current),
+                custom_id="limit",
+                min_length=1,
+                max_length=2,
+            ),
+            title="動態語音頻道 - 人數上限",
+            custom_id="dvc_panel:limit",
+        )
+
+    @staticmethod
+    def transfer_embed() -> Embed:
+        """
+        Create an embed for the dynamic voice channel transfer settings.
+        """
+        return Embed("請選擇一個新的語音頻道擁有者。")
+
+    @staticmethod
+    def transfer_components(ori: int) -> List[interactions.ActionRow]:
+        """
+        Create components for the dynamic voice channel transfer settings.
+        """
+        return [
+            interactions.ActionRow(
+                interactions.UserSelectMenu(
+                    custom_id=f"dvc_panel:transfer_select:{ori}",
+                    placeholder="👤｜請選擇使用者",
+                )
+            ),
+        ]
 
 
 class DvcSettings:
@@ -42,17 +186,17 @@ class DvcSettings:
         embed.set_thumbnail(f"https://cdn.discordapp.com/emojis/{emoji}.png")
         embed.add_field(
             name="目前狀態",
-            value=f"<:reply:1252488534619852821> 動態語音已{'啟用' if dvc.enabled else '停用'}",
+            value=f"動態語音已{'啟用' if dvc.enabled else '停用'}",
             inline=True,
         )
-        if dvc.lobby == -1 or ctx.guild.get_channel(dvc.lobby) is None:
-            value = "<:reply:1252488534619852821> 未設置"
-        else:
-            value = f"<:reply:1252488534619852821> <#{dvc.lobby}>"
-        embed.add_field(name="大廳頻道", value=value, inline=True)
+        embed.add_field(
+            name="大廳頻道",
+            value="未設置" if dvc.lobby == -1 or ctx.guild.get_channel(dvc.lobby) is None else f"<#{dvc.lobby}>",
+            inline=True,
+        )
         embed.add_field(
             name="名稱格式",
-            value=f"<:reply:1252488534619852821> {f'`{dvc.name}`' if dvc.name else '未設置'}",
+            value=f"`{dvc.name}`" if dvc.name else "未設置",
         )
         return embed
 
@@ -67,7 +211,7 @@ class DvcSettings:
                     interactions.StringSelectOption(
                         label="NekoOS • 動態語音設定",
                         value="placeholder",
-                        emoji=interactions.PartialEmoji(id=1250973097486712842),
+                        emoji=PLACEHOLDER_EMOJI,
                         default=True,
                     ),
                     interactions.StringSelectOption(
@@ -103,7 +247,7 @@ class DvcSettings:
         """
         return interactions.Modal(
             interactions.InputText(
-                label="名稱格式",
+                label="動態語音頻道 - 名稱格式",
                 style=interactions.TextStyles.SHORT,
                 placeholder="請輸入希望使用的頻道名稱格式",
                 value=current,
@@ -116,9 +260,7 @@ class DvcSettings:
                 style=interactions.TextStyles.PARAGRAPH,
                 placeholder="""{{count}} - 動態語音頻道編號
 {{user}} - 創建者的顯示名稱
-{{username}} - 創建者的用戶名稱
-{{id}} - 創建者的ID
-{{guild}} - 伺服器名稱""",
+{{username}} - 創建者的用戶名稱""",
                 required=False,
             ),
             title="動態語音頻道 - 名稱格式",
@@ -150,7 +292,7 @@ class DvcSettings:
                     interactions.StringSelectOption(
                         label="NekoOS • 大廳頻道",
                         value="placeholder",
-                        emoji=interactions.PartialEmoji(id=1250973097486712842),
+                        emoji=PLACEHOLDER_EMOJI,
                         default=True,
                     ),
                     Settings.return_option(),

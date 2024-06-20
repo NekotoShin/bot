@@ -16,6 +16,6 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
 
 from .core import Settings
-from .guild import DvcSettings
+from .guild import DvcPanel, DvcSettings
 
-__all__ = ("Settings", "DvcSettings")
+__all__ = ("Settings", "DvcSettings", "DvcPanel")

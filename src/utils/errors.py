@@ -15,6 +15,21 @@ You should have received a copy of the GNU Affero General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
 
-from .dvc import DvcPanel, DvcSettings
+from typing import Optional
 
-__all__ = ("DvcSettings", "DvcPanel")
+__all__ = ("BotException", "Ratelimited")
+
+
+class BotException(Exception):
+    """The base exception for all exceptions raised by the bot."""
+
+
+class Ratelimited(BotException):
+    """
+    This exception is raised when the client is ratelimited.
+    """
+
+    def __init__(self, message: str, retry_after: Optional[int] = None) -> None:
+        super().__init__()
+        self.message = message
+        self.retry_after = retry_after

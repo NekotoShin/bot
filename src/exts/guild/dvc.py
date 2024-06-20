@@ -278,24 +278,21 @@ class DvcComponents(DvcExtension):
         """
         The component callback for the dynamic voice channel transfer select menu.
         """
-        await ctx.defer(ephemeral=True)
+        await ctx.defer(edit_origin=True)
         member: interactions.Member = ctx.values[0]
         owner = await self.database.get_dvc_owner(ctx.channel.id)
         if ctx.author.id != owner:
-            return await ctx.send(embed=Embed("只有頻道擁有者才能修改此設定。", False))
+            return await ctx.edit_origin(embed=Embed("只有頻道擁有者才能修改此設定。", False), components=[])
         if member.id == owner:
-            return await ctx.send(embed=Embed("你已經是頻道擁有者。", False))
+            return await ctx.edit_origin(embed=Embed("你已經是頻道擁有者。", False))
         if member.bot:
-            return await ctx.send(embed=Embed("機器人不能成為頻道擁有者。", False))
+            return await ctx.edit_origin(embed=Embed("機器人不能成為頻道擁有者。", False))
         if not member.voice or member.voice.channel.id != ctx.channel.id:
-            return await ctx.send(embed=Embed("該成員不在此頻道。", False))
+            return await ctx.edit_origin(embed=Embed("該成員不在此頻道。", False))
         await self.database.set_dvc_owner(ctx.channel.id, member.id)
-        await ctx.send(embed=Embed("成功轉移頻道擁有權。", True))
-        await ctx.edit(
-            self.transfer_regex.match(ctx.custom_id).group(1),
-            embed=DvcPanel.embed(member.id, ctx.channel.id),
-            components=DvcPanel.components(),
-        )
+        await ctx.edit_origin(embed=Embed("成功轉移頻道擁有權。", True), components=[])
+        msg = await ctx.channel.fetch_message(self.transfer_regex.match(ctx.custom_id).group(1))
+        await msg.edit(embed=DvcPanel.embed(member.id, ctx.channel.id), components=DvcPanel.components())
 
 
 class DvcCore(DvcExtension):
@@ -372,7 +369,7 @@ class DvcCore(DvcExtension):
             # the channel still exists and not nuked away
             and event.before.channel
             # the channel is empty
-            and len(event.before.channel.members) >= 1
+            and len(event.before.channel.voice_members) <= 1
             # the channel is a dynamic voice channel
             and await self.database.is_dvc(event.before.channel.id)
         ):

@@ -25,35 +25,20 @@ from aiohttp import FormData
 from interactions.api.http.http_client import HTTPClient
 from interactions.api.http.route import Route
 from interactions.client.utils import dict_filter, response_decode
-from interactions.models.internal.protocols import CanRequest
 
 from src.utils import Ratelimited
+
+from .protocols import CanRequest
 
 if TYPE_CHECKING:
     from interactions.models.discord.snowflake import Snowflake_Type
 
+__all__ = ("ModifiedHTTPClient",)
 
-class ModifiedCanRequest(CanRequest):
+
+class RaiseRequests(CanRequest):
     """
-    The modified CanRequest class.
-    """
-
-    async def request(
-        self,
-        route: Route,
-        payload: list | dict | None = None,
-        files: list[interactions.UPLOADABLE_TYPE] | None = None,
-        reason: str | None = None,
-        params: dict | None = None,
-        skip_ratelimit: bool = False,
-        **kwargs: dict,
-    ) -> str | dict[str, Any] | None:
-        raise NotImplementedError("Derived classes need to implement this.")
-
-
-class ChannelRequestsRaise(ModifiedCanRequest):
-    """
-    The modified channel requests class that raise an exception on 429.
+    The modified requests class that raise an exception on 429 instead of waiting out and retrying.
     """
 
     async def modify_channel_raise(
@@ -80,7 +65,7 @@ class ChannelRequestsRaise(ModifiedCanRequest):
         return cast(discord_typings.ChannelData, result)
 
 
-class ModifiedHTTPClient(HTTPClient, ChannelRequestsRaise):
+class ModifiedHTTPClient(HTTPClient, RaiseRequests):
     """
     The modified HTTP client.
     """

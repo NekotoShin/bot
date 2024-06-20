@@ -21,7 +21,7 @@ from typing import List, Tuple
 
 import interactions  # noqa: F401
 from interactions import MISSING, TYPE_ALL_CHANNEL, Absent
-from interactions.api.events import VoiceStateUpdate
+from interactions.api.events import ChannelDelete, VoiceStateUpdate
 
 from src.core.database import DvcDatabase, models
 from src.main import BaseExtension, Client
@@ -174,7 +174,6 @@ class DvcComponents(DvcExtension):
             dvc.enabled = False
             await self.database.set_guild_dvc_settings(ctx.guild.id, models.DvcSettings.create(**dvc.__dict__))
             async for i in self.database.get_guild_dvcs(ctx.guild.id):
-                await self.database.remove_dvc(i)
                 await self.client.http.delete_channel(i)
             return DvcSettings.embed(ctx, dvc, "成功停用動態語音頻道。", True), DvcSettings.components(dvc)
         if dvc.lobby == -1 or not await self.client.fetch_channel(dvc.lobby):
@@ -273,7 +272,6 @@ class DvcComponents(DvcExtension):
             await ctx.message.edit(embed=DvcPanel.embed(owner, ctx.channel.id), components=DvcPanel.components())
         elif option == "close":
             await ctx.send(embed=Embed("正在關閉動態語音頻道...", True))
-            await self.database.remove_dvc(ctx.channel.id)
             await ctx.channel.delete("動態語音頻道關閉")
 
     @interactions.component_callback(transfer_regex)
@@ -376,8 +374,15 @@ class DvcCore(DvcExtension):
             # the channel is a dynamic voice channel
             and await self.database.is_dvc(event.before.channel.id)
         ):
-            await self.database.remove_dvc(event.before.channel.id)
             await event.before.channel.delete("動態語音頻道移除")
+
+    @interactions.listen()
+    async def on_channel_delete(self, event: ChannelDelete) -> None:
+        """
+        The event that is triggered when a channel is deleted.
+        """
+        if event.channel.type == interactions.ChannelType.GUILD_VOICE:
+            await self.database.remove_dvc(event.channel.id)
 
 
 def setup(client: Client):

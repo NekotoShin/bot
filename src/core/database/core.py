@@ -15,12 +15,13 @@ You should have received a copy of the GNU Affero General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
 
-from ..core import CanExecute
+from typing import Protocol, TypeVar
 
-__all__ = ("Settings",)
+__all__ = ("CanExecute",)
+
+T_co = TypeVar("T_co", covariant=True)
 
 
-class Settings(CanExecute):
-    """
-    The database class of the bot.
-    """
+class CanExecute(Protocol[T_co]):
+    async def execute(self, *args, **kwargs):
+        raise NotImplementedError("Derived classes need to implement this.")

@@ -17,40 +17,17 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 from typing import AsyncGenerator
 
-from ..client import DatabaseClient, FeatureDatabase
+from ..core import CanExecute
 from ..models import DvcSettings
 from ..utils import to_bigint, to_snowflake
 
-__all__ = ("DvcDatabase",)
+__all__ = ("Dvc",)
 
 
-class DvcDatabase(FeatureDatabase):
+class Dvc(CanExecute):
     """
     The database class of the bot.
     """
-
-    def __init__(self, core: DatabaseClient) -> None:
-        super().__init__(core)
-        self.core.type_queries.add(
-            """
-            CREATE TYPE IF NOT EXISTS dvcSettings (
-                enabled BOOLEAN,
-                lobby BIGINT,
-                name TEXT,
-            )
-            """
-        )
-        self.core.table_queries.add(
-            """
-            CREATE TABLE IF NOT EXISTS dvc (
-                id BIGINT,
-                owner_id BIGINT,
-                guild_id BIGINT,
-                PRIMARY KEY (id)
-            );
-            """
-        )
-        self.core.table_queries.add("CREATE INDEX IF NOT EXISTS ON dvc (guild_id);")
 
     async def is_dvc(self, channel_id: int) -> bool:
         """
@@ -115,7 +92,7 @@ class DvcDatabase(FeatureDatabase):
         """
         await self.execute("DELETE FROM dvc WHERE id = ?;", (to_bigint(channel_id),))
 
-    async def get_dvc_count(self, guild_id: int) -> int:
+    async def get_guild_dvc_count(self, guild_id: int) -> int:
         """
         Get the number of dynamic voice channels in a guild.
 

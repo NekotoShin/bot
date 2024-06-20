@@ -15,7 +15,7 @@ You should have received a copy of the GNU Affero General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
 
-from .dvc import DvcDatabase
-from .settings import SettingsDatabase
+from .dvc import Dvc
+from .settings import Settings
 
-__all__ = ("DvcDatabase", "SettingsDatabase")
+__all__ = ("Dvc", "Settings")

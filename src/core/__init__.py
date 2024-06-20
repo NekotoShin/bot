@@ -16,14 +16,13 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
 
 from .config import Config
-from .database import DatabaseClient, FeatureDatabase, to_bigint, to_snowflake
+from .database import DatabaseClient, to_bigint, to_snowflake
 from .http import ModifiedHTTPClient
 from .logging import InterceptHandler, Logger
 
 __all__ = (
     "Config",
     "DatabaseClient",
-    "FeatureDatabase",
     "Logger",
     "InterceptHandler",
     "to_bigint",

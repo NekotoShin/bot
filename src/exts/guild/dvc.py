@@ -23,28 +23,12 @@ import interactions  # noqa: F401
 from interactions import MISSING, TYPE_ALL_CHANNEL, Absent
 from interactions.api.events import ChannelDelete, VoiceStateUpdate
 
-from src.core.database import DvcDatabase, models
+from src.core.database import models
 from src.main import BaseExtension, Client
 from src.utils import DvcPanel, DvcSettings, Embed, Ratelimited, Settings
 
 
-class DvcExtension(BaseExtension):
-    """
-    The base extension class for the dynamic voice channels.
-    """
-
-    def __init__(self, client: Client):
-        """
-        The constructor for the extension.
-
-        :param client: The client object.
-        :type client: Client
-        """
-        super().__init__(client=client)
-        self.database: DvcDatabase = self.feature_database["dvc"]
-
-
-class DvcModals(DvcExtension):
+class DvcModals(BaseExtension):
     """
     The extension class for the dynamic voice channel modals.
     """
@@ -152,7 +136,7 @@ class DvcModals(DvcExtension):
         await ctx.send(embed=Embed("成功修改語音頻道人數限制。", True))
 
 
-class DvcComponents(DvcExtension):
+class DvcComponents(BaseExtension):
     """
     The extension class for the dynamic voice channel components.
     """
@@ -296,7 +280,7 @@ class DvcComponents(DvcExtension):
         await msg.edit(embed=DvcPanel.embed(member.id, ctx.channel.id), components=DvcPanel.components())
 
 
-class DvcCore(DvcExtension):
+class DvcCore(BaseExtension):
     """
     The extension class for the dynamic voice channels.
     """
@@ -330,7 +314,7 @@ class DvcCore(DvcExtension):
         :rtype: str
         """
         if "{{count}}" in ori:
-            ori = ori.replace("{{count}}", str(await self.database.get_dvc_count(vs.guild.id) + 1))
+            ori = ori.replace("{{count}}", str(await self.database.get_guild_dvc_count(vs.guild.id) + 1))
         return ori.replace("{{username}}", vs.member.username).replace("{{user}}", vs.member.display_name)
 
     @interactions.listen()

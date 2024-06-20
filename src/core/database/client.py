@@ -20,7 +20,7 @@ from typing import Any, Dict, Iterable, List, Optional, Union
 
 from scyllapy import Consistency, ExecutionProfile, Scylla
 
-__all__ = ("DatabaseCore",)
+__all__ = ("DatabaseClient",)
 
 
 class Queries:
@@ -46,7 +46,7 @@ class Queries:
         self.queries.clear()
 
 
-class DatabaseCore:
+class DatabaseClient:
     """
     The database class of the bot.
     """
@@ -103,7 +103,7 @@ class FeatureDatabase:
     The database class for each features.
     """
 
-    def __init__(self, core: DatabaseCore) -> None:
+    def __init__(self, core: DatabaseClient) -> None:
         self.core = core
 
     async def execute(self, *args, **kwargs):

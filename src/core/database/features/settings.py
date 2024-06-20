@@ -15,7 +15,7 @@ You should have received a copy of the GNU Affero General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
 
-from ..core import DatabaseCore, FeatureDatabase
+from ..client import DatabaseClient, FeatureDatabase
 
 __all__ = ("SettingsDatabase",)
 
@@ -25,7 +25,7 @@ class SettingsDatabase(FeatureDatabase):
     The database class of the bot.
     """
 
-    def __init__(self, core: DatabaseCore) -> None:
+    def __init__(self, core: DatabaseClient) -> None:
         super().__init__(core)
         self.core.table_queries.add(
             """

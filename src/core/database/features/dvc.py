@@ -17,7 +17,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 from typing import AsyncGenerator
 
-from ..core import DatabaseCore, FeatureDatabase
+from ..client import DatabaseClient, FeatureDatabase
 from ..models import DvcSettings
 from ..utils import to_bigint, to_snowflake
 
@@ -29,7 +29,7 @@ class DvcDatabase(FeatureDatabase):
     The database class of the bot.
     """
 
-    def __init__(self, core: DatabaseCore) -> None:
+    def __init__(self, core: DatabaseClient) -> None:
         super().__init__(core)
         self.core.type_queries.add(
             """

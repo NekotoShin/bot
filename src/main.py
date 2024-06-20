@@ -28,7 +28,7 @@ from scyllapy.exceptions import ScyllaPyDBError
 
 from src.core import (
     Config,
-    DatabaseCore,
+    DatabaseClient,
     FeatureDatabase,
     InterceptHandler,
     Logger,
@@ -76,7 +76,7 @@ class Client(interactions.Client):
         )
 
         # prepare the database instance
-        self.database = DatabaseCore(
+        self.database = DatabaseClient(
             hosts=self.config["database.hosts"],
             username=self.config["database.username"],
             password=self.config["database.password"],
@@ -268,7 +268,7 @@ class BaseExtension(interactions.Extension):
         return self.client.config
 
     @property
-    def global_database(self) -> DatabaseCore:
+    def global_database(self) -> DatabaseClient:
         return self.client.database
 
     @property

@@ -63,7 +63,9 @@ class Dvc(CanExecute):
         :return: An async generator of all dynamic voice channels in the guild.
         :rtype: AsyncGenerator[int, None]
         """
-        result = await self.execute("SELECT id FROM dvc WHERE guild_id = ?;", (to_bigint(guild_id),), paged=True)
+        result = await self.execute(
+            "SELECT id FROM dvc WHERE guild_id = ? ALLOW FILTERING;", (to_bigint(guild_id),), paged=True
+        )
         async for row in result:
             yield to_snowflake(row["id"])
 
@@ -102,7 +104,9 @@ class Dvc(CanExecute):
         :return: The number of dynamic voice channels in the guild.
         :rtype: int
         """
-        result = await self.execute("SELECT COUNT(*) FROM dvc WHERE guild_id = ?;", (to_bigint(guild_id),))
+        result = await self.execute(
+            "SELECT COUNT(*) FROM dvc WHERE guild_id = ? ALLOW FILTERING;", (to_bigint(guild_id),)
+        )
         return result.first()["count"]
 
     async def get_dvc_owner(self, channel_id: int) -> int:

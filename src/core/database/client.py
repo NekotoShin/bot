@@ -93,7 +93,6 @@ class DatabaseClient(Dvc, Settings):
             );
             """
         )
-        await self.scylla.execute("CREATE INDEX IF NOT EXISTS ON dvc (guild_id);")
         await self.scylla.execute(
             """
             CREATE TABLE IF NOT EXISTS guilds (

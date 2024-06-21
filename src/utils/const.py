@@ -15,12 +15,16 @@ You should have received a copy of the GNU Affero General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
 
+import re
+
 import interactions
 
 __all__ = (
     "REPLY_EMOJI",
     "PLACEHOLDER_EMOJI",
     "DISCORD_EPOCH",
+    "URL_REGEX",
+    "TOKEN_REGEX",
 )
 
 REPLY_EMOJI = "<:reply:1252488534619852821>"
@@ -28,3 +32,7 @@ REPLY_EMOJI = "<:reply:1252488534619852821>"
 PLACEHOLDER_EMOJI = interactions.PartialEmoji(id=1250973097486712842)
 
 DISCORD_EPOCH = 1420070400000
+
+URL_REGEX = re.compile(r"(http|https)(:\/\/)([\w_-]+(?:(?:\.[\w_-]+)+))([\w.,@?^=%&:\/~+#-]*[\w@?^=%&\/~+#-])")
+
+TOKEN_REGEX = re.compile(r"[\w-]{23,28}\.[\w-]{6,7}\.[\w-]{27,}")

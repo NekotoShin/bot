@@ -57,7 +57,7 @@ class Embed(interactions.Embed):
         else:
             kwargs["color"] = kwargs.get("color", "#FEE75C")
         if description:
-            description = f"{REPLY_EMOJI} {description}"
+            description = "".join(f"{REPLY_EMOJI} {i}" for i in description.splitlines(True))
             kwargs["description"] = description.replace(self._client.http.token, "[REDACTED TOKEN]")
 
         super().__init__(**kwargs)

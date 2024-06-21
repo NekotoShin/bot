@@ -18,7 +18,6 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 from typing import AsyncGenerator
 
 from ....protocols import CanExecute
-from ...models import DvcSettings
 from ...utils import to_bigint, to_snowflake
 
 __all__ = ("Dvc",)
@@ -132,28 +131,3 @@ class Dvc(CanExecute):
         :type owner_id: int
         """
         await self.execute("UPDATE dvc SET owner_id = ? WHERE id = ?;", (to_bigint(owner_id), to_bigint(channel_id)))
-
-    async def get_guild_dvc_settings(self, guild_id: int) -> DvcSettings:
-        """
-        Get the settings of the dynamic voice channels in a guild.
-
-        :param guild_id: The guild ID.
-        :type guild_id: int
-
-        :return: The settings of the dynamic voice channels in the guild.
-        :rtype: DvcSettings
-        """
-        result = await self.execute("SELECT dvc FROM guilds WHERE id = ?;", (to_bigint(guild_id),))
-        row = result.first()
-        return DvcSettings(**row["dvc"]) if row else DvcSettings.default()
-
-    async def set_guild_dvc_settings(self, guild_id: int, settings: DvcSettings) -> None:
-        """
-        Set the settings of the dynamic voice channels in a guild.
-
-        :param guild_id: The guild ID.
-        :type guild_id: int
-        :param settings: The settings of the dynamic voice channels.
-        :type settings: DvcSettings
-        """
-        await self.execute("UPDATE guilds SET dvc = ? WHERE id = ?;", (settings, to_bigint(guild_id)))

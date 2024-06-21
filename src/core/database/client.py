@@ -20,12 +20,12 @@ from typing import List, Optional
 
 from scyllapy import Consistency, ExecutionProfile, Scylla
 
-from .features import Dvc, Settings
+from .features import Dvc, GuildSettings
 
 __all__ = ("DatabaseClient",)
 
 
-class DatabaseClient(Dvc, Settings):
+class DatabaseClient(Dvc, GuildSettings):
     """
     The database class of the bot.
     """

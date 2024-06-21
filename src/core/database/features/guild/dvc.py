@@ -17,9 +17,9 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 from typing import AsyncGenerator
 
-from ...protocols import CanExecute
-from ..models import DvcSettings
-from ..utils import to_bigint, to_snowflake
+from ....protocols import CanExecute
+from ...models import DvcSettings
+from ...utils import to_bigint, to_snowflake
 
 __all__ = ("Dvc",)
 

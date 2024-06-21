@@ -15,12 +15,7 @@ You should have received a copy of the GNU Affero General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
 
-from ...protocols import CanExecute
+from .dvc import Dvc
+from .settings import GuildSettings
 
-__all__ = ("Settings",)
-
-
-class Settings(CanExecute):
-    """
-    The database class of the bot.
-    """
+__all__ = ("Dvc", "GuildSettings")

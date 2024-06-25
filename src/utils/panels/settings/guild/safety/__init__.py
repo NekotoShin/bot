@@ -37,7 +37,7 @@ class GuildSafetySettings:
         """
         Create a safety settings embed.
         """
-        return Embed(description="你可以在這裡為這個伺服器設定安全功能。")
+        return Embed("你可以在這裡為這個伺服器設定安全功能。")
 
     @staticmethod
     def components(ctx: interactions.ComponentContext) -> List[interactions.ActionRow]:

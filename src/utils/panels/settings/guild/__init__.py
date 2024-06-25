@@ -48,7 +48,7 @@ class GuildSettings:
         """
         Create a guild settings embed.
         """
-        return Embed(description="你可以在這裡修改這個伺服器的設定。")
+        return Embed("你可以在這裡修改這個伺服器的設定。")
 
     @staticmethod
     def components(ctx: interactions.ComponentContext) -> List[interactions.ActionRow]:

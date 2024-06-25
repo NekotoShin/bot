@@ -21,7 +21,7 @@ import interactions
 
 from src.core.database.models import SafetySettings as SafetySettingsModel
 
-from .....const import PLACEHOLDER_EMOJI
+from .....const import PLACEHOLDER_EMOJI, SWITCH_OFF_EMOJI, SWITCH_ON_EMOJI
 from .....embed import Embed
 from ...utils import return_option
 
@@ -38,12 +38,17 @@ class MessageSafetySettings:
         """
         Create a default dynamic voice channel settings embed.
         """
-        emoji = 1252837291957682208 if safety.enabled else 1252837290146005094
+        emoji = SWITCH_ON_EMOJI.id if safety.enabled else SWITCH_OFF_EMOJI.id
         embed = Embed(msg or "這裡是訊息檢查的設定。", success)
         embed.set_thumbnail(f"https://cdn.discordapp.com/emojis/{emoji}.png")
         embed.add_field(
-            name="目前狀態",
-            value=f"Discord token檢查已{'啟用' if safety.dtoken else '停用'}\n連結安全掃描已{'啟用' if safety.url else '停用'}",
+            name="Discord token檢查",
+            value=f" 已{'啟用' if safety.dtoken else '停用'}",
+            inline=True,
+        )
+        embed.add_field(
+            name="連結安全掃描",
+            value=f"已{'啟用' if safety.url else '停用'}",
             inline=True,
         )
         return embed
@@ -66,15 +71,13 @@ class MessageSafetySettings:
                         label="停用Discord token檢查" if safety.dtoken else "啟用Discord token檢查",
                         value="dtoken",
                         description=f"{'停止' if safety.dtoken else '開始'} 掃描訊息是否包含 Discord token",
-                        emoji=interactions.PartialEmoji(
-                            id=1252837290146005094 if safety.dtoken else 1252837291957682208
-                        ),
+                        emoji=SWITCH_OFF_EMOJI if safety.dtoken else SWITCH_ON_EMOJI,
                     ),
                     interactions.StringSelectOption(
                         label="停用連結安全掃描" if safety.url else "啟用連結安全掃描",
                         value="url",
                         description=f"{'停止' if safety.url else '開始'} 掃描訊息中的連結是否安全",
-                        emoji=interactions.PartialEmoji(id=1252837290146005094 if safety.url else 1252837291957682208),
+                        emoji=SWITCH_OFF_EMOJI if safety.url else SWITCH_ON_EMOJI,
                     ),
                     return_option(),
                     custom_id="safety_settings:message_select",

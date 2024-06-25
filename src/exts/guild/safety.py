@@ -135,12 +135,7 @@ class Safety(BaseExtension):
         """
         await ctx.defer(edit_origin=True)
         option = ctx.values[0]
-        if option == "placeholder":
-            embed, components = None, None
-        elif option == "return":
-            embed = GuildSafetySettings.embed()
-            components = GuildSafetySettings.components(ctx)
-        elif option == "dtoken":
+        if option == "dtoken":
             safety = await self.database.get_guild_safety_settings(ctx.guild.id)
             safety.dtoken = not safety.dtoken
             embed = MessageSafetySettings.embed(
@@ -148,6 +143,11 @@ class Safety(BaseExtension):
             )
             components = MessageSafetySettings.components(safety)
             await self.database.set_guild_safety_settings(ctx.guild.id, safety)
+        elif option == "placeholder":
+            embed, components = None, None
+        elif option == "return":
+            embed = GuildSafetySettings.embed()
+            components = GuildSafetySettings.components(ctx)
         elif option == "url":
             safety = await self.database.get_guild_safety_settings(ctx.guild.id)
             safety.url = not safety.url

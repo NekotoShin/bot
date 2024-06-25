@@ -15,7 +15,13 @@ You should have received a copy of the GNU Affero General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
 
-from .const import PLACEHOLDER_EMOJI, REPLY_EMOJI, URL_REGEX
+from .const import (
+    PLACEHOLDER_EMOJI,
+    REPLY_EMOJI,
+    SWITCH_OFF_EMOJI,
+    SWITCH_ON_EMOJI,
+    URL_REGEX,
+)
 from .discord import snowflake_time
 from .embed import Embed
 from .errors import BotException, Ratelimited
@@ -39,6 +45,8 @@ __all__ = (
     "REPLY_EMOJI",
     "PLACEHOLDER_EMOJI",
     "URL_REGEX",
+    "SWITCH_ON_EMOJI",
+    "SWITCH_OFF_EMOJI",
     "BotException",
     "Ratelimited",
     "Settings",

@@ -36,7 +36,7 @@ class PersonalSettings:
         """
         Create a personal settings embed.
         """
-        return Embed(description="你可以在這裡修改專屬於你的個人化選項。")
+        return Embed("你可以在這裡修改專屬於你的個人化選項。")
 
     @staticmethod
     def components(ctx: interactions.ComponentContext) -> List[interactions.ActionRow]:

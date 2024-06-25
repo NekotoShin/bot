@@ -36,7 +36,7 @@ class GuildFunSettings:
         """
         Create a fun settings embed.
         """
-        return Embed(description="你可以在這裡為這個伺服器設定趣味功能。")
+        return Embed("你可以在這裡為這個伺服器設定趣味功能。")
 
     @staticmethod
     def components(ctx: interactions.ComponentContext) -> List[interactions.ActionRow]:

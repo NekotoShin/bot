@@ -106,6 +106,7 @@ class Client(interactions.Client):
         """
         The event that is triggered when the bot is started.
         """
+        self.dev_user = await self.fetch_user(self.config["bot.developers"][0])
         try:
             await self.database.initialize()
         except ScyllaPyDBError:

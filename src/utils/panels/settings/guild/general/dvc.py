@@ -22,7 +22,7 @@ import interactions
 from src.core.database.models import DvcSettings as DvcSettingsModel
 from src.utils.embed import Embed
 
-from .....const import PLACEHOLDER_EMOJI
+from .....const import PLACEHOLDER_EMOJI, SWITCH_OFF_EMOJI, SWITCH_ON_EMOJI
 from ...utils import return_option
 
 __all__ = ("DvcSettings",)
@@ -38,12 +38,12 @@ class DvcSettings:
         """
         Create a default dynamic voice channel settings embed.
         """
-        emoji = 1252837291957682208 if dvc.enabled else 1252837290146005094
+        emoji = SWITCH_ON_EMOJI.id if dvc.enabled else SWITCH_OFF_EMOJI.id
         embed = Embed(msg or "這裡是動態語音頻道的設定。", success)
         embed.set_thumbnail(f"https://cdn.discordapp.com/emojis/{emoji}.png")
         embed.add_field(
             name="目前狀態",
-            value=f"動態語音已{'啟用' if dvc.enabled else '停用'}",
+            value=f"已{'啟用' if dvc.enabled else '停用'}",
             inline=True,
         )
         embed.add_field(
@@ -75,9 +75,7 @@ class DvcSettings:
                         label="停用動態語音頻道" if dvc.enabled else "啟用動態語音頻道",
                         value="toggle",
                         description=f"{'停用' if dvc.enabled else '啟用'}動態語音頻道功能",
-                        emoji=interactions.PartialEmoji(
-                            id=1252837290146005094 if dvc.enabled else 1252837291957682208
-                        ),
+                        emoji=SWITCH_OFF_EMOJI if dvc.enabled else SWITCH_ON_EMOJI,
                     ),
                     interactions.StringSelectOption(
                         label="選擇頻道",

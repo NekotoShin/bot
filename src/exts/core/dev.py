@@ -155,26 +155,26 @@ class DeveloperComponents(BaseExtension):
                     interactions.StringSelectOption(
                         label="NekoOS • 開發者工具",
                         value="placeholder",
-                        emoji=interactions.PartialEmoji(name="🛠️"),
+                        emoji="🛠️",
                         default=True,
                     ),
                     interactions.StringSelectOption(
                         label="插件管理",
                         description="管理機器人的插件 (啟用/停用/重新載入)",
                         value="extensions",
-                        emoji=interactions.PartialEmoji(name="🔌"),
+                        emoji="🔌",
                     ),
                     interactions.StringSelectOption(
                         label="執行程式碼",
                         description="透過機器人執行Python程式碼 (eval)",
                         value="eval",
-                        emoji=interactions.PartialEmoji(name="💻"),
+                        emoji="💻",
                     ),
                     interactions.StringSelectOption(
                         label="關閉機器人",
                         description="中斷機器人與Discord和資料庫的連接並停止伺服器",
                         value="shutdown",
-                        emoji=interactions.PartialEmoji(name="🛑"),
+                        emoji="🛑",
                     ),
                     custom_id=f"{author_id}:developer:select",
                 )
@@ -192,7 +192,7 @@ class DeveloperComponents(BaseExtension):
                     interactions.StringSelectOption(
                         label="NekoOS • 關閉機器人",
                         value="placeholder",
-                        emoji=interactions.PartialEmoji(name="🛑"),
+                        emoji="🛑",
                         default=True,
                     ),
                     disabled=True,
@@ -212,7 +212,7 @@ class DeveloperComponents(BaseExtension):
         await ctx.defer(edit_origin=True)
         if option == "extensions":
             await ctx.edit_origin(
-                embed=Embed("管理機器人插件的各項功能"),
+                embed=Embed("管理機器人插件的各項功能。"),
                 components=DeveloperComponents.extensions(author_id),
             )
         elif option == "shutdown":
@@ -233,20 +233,20 @@ class DeveloperComponents(BaseExtension):
                     interactions.StringSelectOption(
                         label="NekoOS • 執行程式碼",
                         value="placeholder",
-                        emoji=interactions.PartialEmoji(name="💻"),
+                        emoji="💻",
                         default=True,
                     ),
                     interactions.StringSelectOption(
                         label="再次執行",
                         description="繼續執行其他Python程式碼",
                         value="eval",
-                        emoji=interactions.PartialEmoji(name="🔁"),
+                        emoji="🔁",
                     ),
                     interactions.StringSelectOption(
                         label="返回",
                         description="回到全部開發者工具",
                         value="back",
-                        emoji=interactions.PartialEmoji(name="🔙"),
+                        emoji="🔙",
                     ),
                     custom_id=f"{author_id}:developer:eval:completed",
                 )
@@ -276,7 +276,7 @@ class DeveloperComponents(BaseExtension):
             interactions.StringSelectOption(
                 label="NekoOS • 插件管理",
                 value="placeholder",
-                emoji=interactions.PartialEmoji(name="🔌"),
+                emoji="🔌",
                 default=True,
             ),
         ]
@@ -287,7 +287,7 @@ class DeveloperComponents(BaseExtension):
                     label="列表",
                     description="列出所有已經啟用及可用的插件",
                     value="list",
-                    emoji=interactions.PartialEmoji(name="📋"),
+                    emoji="📋",
                 )
             )
         options.extend(
@@ -296,25 +296,25 @@ class DeveloperComponents(BaseExtension):
                     label="啟用",
                     description="啟用指定的插件",
                     value="load",
-                    emoji=interactions.PartialEmoji(name="🟢"),
+                    emoji="🟢",
                 ),
                 interactions.StringSelectOption(
                     label="停用",
                     description="停用指定的插件",
                     value="unload",
-                    emoji=interactions.PartialEmoji(name="🔴"),
+                    emoji="🔴",
                 ),
                 interactions.StringSelectOption(
                     label="重新載入",
                     description="重新載入指定的插件",
                     value="reload",
-                    emoji=interactions.PartialEmoji(name="🔄"),
+                    emoji="🔄",
                 ),
                 interactions.StringSelectOption(
                     label="返回",
                     description="回到全部開發者工具",
                     value="back",
-                    emoji=interactions.PartialEmoji(name="🔙"),
+                    emoji="🔙",
                 ),
             ]
         )

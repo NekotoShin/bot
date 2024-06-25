@@ -37,7 +37,7 @@ class GuildGeneralSettings:
         """
         Create a general settings embed.
         """
-        return Embed(description="你可以在這裡為這個伺服器設定各種功能。")
+        return Embed("你可以在這裡為這個伺服器設定各種功能。")
 
     @staticmethod
     def components(ctx: interactions.ComponentContext) -> List[interactions.ActionRow]:

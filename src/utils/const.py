@@ -22,14 +22,20 @@ import interactions
 __all__ = (
     "REPLY_EMOJI",
     "PLACEHOLDER_EMOJI",
+    "SWITCH_ON_EMOJI",
+    "SWITCH_OFF_EMOJI",
     "DISCORD_EPOCH",
     "URL_REGEX",
     "TOKEN_REGEX",
 )
 
-REPLY_EMOJI = "<:reply:1252488534619852821>"
+REPLY_EMOJI = interactions.PartialEmoji.from_str("<:reply:1252488534619852821>")
 
 PLACEHOLDER_EMOJI = interactions.PartialEmoji(id=1250973097486712842)
+
+SWITCH_ON_EMOJI = interactions.PartialEmoji.from_str("<:on:1252837291957682208>")
+
+SWITCH_OFF_EMOJI = interactions.PartialEmoji.from_str("<:off:1252837290146005094>")
 
 DISCORD_EPOCH = 1420070400000
 

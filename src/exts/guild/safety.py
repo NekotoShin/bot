@@ -22,7 +22,7 @@ import decouple
 import interactions  # noqa: F401
 
 from src.main import BaseExtension, Client
-from src.utils import Embed, Validator
+from src.utils import Embed, SafetySettings, Settings, Validator
 
 
 class Safety(BaseExtension):
@@ -85,7 +85,7 @@ class Safety(BaseExtension):
         async with aiohttp.ClientSession() as s, s.post(
             f"https://safebrowsing.googleapis.com/v4/threatMatches:find?key={decouple.config('googleapi')}",
             json={
-                "client": {"clientId": "猫戸助手", "clientVersion": self.client.__version__},
+                "client": {"clientId": "NekoNode", "clientVersion": self.client.__version__},
                 "threatInfo": {
                     "threatTypes": [
                         "MALWARE",
@@ -122,11 +122,39 @@ class Safety(BaseExtension):
 
         checks = await self.database.get_guild_safety_settings(event.message.guild.id)
 
-        if checks["token"] and await self._handle_tokens(event):
+        if checks.dtoken and await self._handle_tokens(event):
             return
 
-        if checks["url"] and await self._handle_urls(event):
+        if checks.url and await self._handle_urls(event):
             return
+
+    @interactions.component_callback("safety_settings:select")
+    async def safety_settings_select(self, ctx: interactions.ComponentContext):
+        """
+        The component callback for the safety settings select menu.
+        """
+        await ctx.defer(edit_origin=True)
+        option = ctx.values[0]
+        if option == "placeholder":
+            embed, components = None, None
+        elif option == "return":
+            embed = Settings.preferences_embed()
+            components = Settings.preferences_components(ctx)
+        elif option == "dtoken":
+            safety = await self.database.get_guild_safety_settings(ctx.guild.id)
+            safety.dtoken = not safety.dtoken
+            embed = SafetySettings.embed(
+                safety, f"已{'啟用' if safety.dtoken else '停用'}Discord token檢查。", success=True
+            )
+            components = SafetySettings.components(safety)
+            await self.database.set_guild_safety_settings(ctx.guild.id, safety)
+        elif option == "url":
+            safety = await self.database.get_guild_safety_settings(ctx.guild.id)
+            safety.url = not safety.url
+            embed = SafetySettings.embed(safety, f"已{'啟用' if safety.url else '停用'}連結安全掃描。", success=True)
+            components = SafetySettings.components(safety)
+            await self.database.set_guild_safety_settings(ctx.guild.id, safety)
+        await ctx.edit_origin(embed=embed, components=components)
 
 
 def setup(client: Client):

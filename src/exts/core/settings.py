@@ -18,7 +18,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 import interactions
 
 from src.main import BaseExtension, Client
-from src.utils import DvcSettings, Settings
+from src.utils import DvcSettings, SafetySettings, Settings
 
 
 class SettingsExt(BaseExtension):
@@ -123,6 +123,10 @@ class SettingsExt(BaseExtension):
         elif option == "return":
             embed = Settings.guild_embed()
             components = Settings.guild_components(ctx)
+        elif option == "safety":
+            safety = await self.database.get_guild_safety_settings(ctx.guild.id)
+            embed = SafetySettings.embed(safety)
+            components = SafetySettings.components(safety)
         await ctx.edit_origin(embed=embed, components=components)
 
 

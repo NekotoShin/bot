@@ -16,5 +16,6 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
 
 from .dvc import DvcSettings
+from .safety import SafetySettings
 
-__all__ = ("DvcSettings",)
+__all__ = ("DvcSettings", "SafetySettings")

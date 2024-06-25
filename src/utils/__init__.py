@@ -19,12 +19,13 @@ from .const import PLACEHOLDER_EMOJI, REPLY_EMOJI, URL_REGEX
 from .discord import snowflake_time
 from .embed import Embed
 from .errors import BotException, Ratelimited
-from .generators import DvcPanel, DvcSettings, Settings
+from .generators import DvcPanel, DvcSettings, SafetySettings, Settings
 from .validator import Validator
 
 __all__ = (
     "Embed",
     "Settings",
+    "SafetySettings",
     "DvcSettings",
     "DvcPanel",
     "snowflake_time",

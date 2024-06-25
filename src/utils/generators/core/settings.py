@@ -208,6 +208,12 @@ class Settings:
                         emoji=PLACEHOLDER_EMOJI,
                         default=True,
                     ),
+                    interactions.StringSelectOption(
+                        label="伺服器安全檢查",
+                        value="safety",
+                        description="管理伺服器的安全檢查設定",
+                        emoji="🛡️",
+                    ),
                     Settings.return_option(),
                     custom_id="settings:preferences_select",
                 )

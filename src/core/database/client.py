@@ -78,6 +78,14 @@ class DatabaseClient(Dvc, GuildSettings):
             );
             """
         )
+        await self.scylla.execute(
+            """
+            CREATE TYPE IF NOT EXISTS safetySettings (
+                dtoken BOOLEAN,
+                url BOOLEAN,
+            );
+            """
+        )
 
     async def setup_tables(self) -> None:
         """
@@ -98,6 +106,7 @@ class DatabaseClient(Dvc, GuildSettings):
             CREATE TABLE IF NOT EXISTS guilds (
                 id BIGINT,
                 dvc frozen<dvcSettings>,
+                safety frozen<safetySettings>,
                 PRIMARY KEY (id)
             );
             """

@@ -19,7 +19,7 @@ from typing import List
 
 import interactions
 
-from src.core.database.models import DvcSettings as DvcSettingsModel
+from src.core.database import DvcSettingsModel
 from src.utils.embed import Embed
 
 from .....const import PLACEHOLDER_EMOJI, SWITCH_OFF_EMOJI, SWITCH_ON_EMOJI

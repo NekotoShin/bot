@@ -15,11 +15,12 @@ You should have received a copy of the GNU Affero General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
 
-from typing import Any, Protocol, TypeVar
+from typing import Any, Iterable, List, Protocol, TypeVar, Union
 
 import interactions
 from interactions.api.http.route import Route
 from interactions.models.internal.protocols import CanRequest as CanRequestBase
+from scyllapy import PreparedQuery, Query, QueryResult
 
 __all__ = ("CanRequest", "CanExecute")
 
@@ -45,5 +46,13 @@ class CanRequest(CanRequestBase):
 
 
 class CanExecute(Protocol[T_co]):
-    async def execute(self, *args, **kwargs):
+    setup_queries: List[str]
+
+    async def execute(
+        self,
+        query: str | Query | PreparedQuery,
+        params: Iterable[Any] | dict[str, Any] | None = None,
+        *,
+        paged: bool = False,
+    ) -> Union[QueryResult, Any]:
         raise NotImplementedError("Derived classes need to implement this.")

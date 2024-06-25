@@ -15,7 +15,7 @@ You should have received a copy of the GNU Affero General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
 
-from .dvc import Dvc
-from .settings import GuildSettings
+from .dvc import Dvc, DvcSettingsModel
+from .safety import Safety, SafetySettingsModel
 
-__all__ = ("Dvc", "GuildSettings")
+__all__ = ("Dvc", "Safety", "DvcSettingsModel", "SafetySettingsModel")

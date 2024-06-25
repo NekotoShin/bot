@@ -19,7 +19,7 @@ from typing import List
 
 import interactions
 
-from src.core.database.models import SafetySettings as SafetySettingsModel
+from src.core.database import SafetySettingsModel
 
 from .....const import PLACEHOLDER_EMOJI, SWITCH_OFF_EMOJI, SWITCH_ON_EMOJI
 from .....embed import Embed

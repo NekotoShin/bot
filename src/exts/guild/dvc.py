@@ -23,7 +23,6 @@ import interactions  # noqa: F401
 from interactions import MISSING, TYPE_ALL_CHANNEL, Absent
 from interactions.api.events import ChannelDelete, VoiceStateUpdate
 
-from src.core.database import models
 from src.main import BaseExtension, Client
 from src.utils import DvcPanel, DvcSettings, Embed, GuildGeneralSettings, Ratelimited
 
@@ -69,7 +68,7 @@ class DvcModals(BaseExtension):
         dvc = await self.database.get_guild_dvc_settings(ctx.guild.id)
         if name := name.strip():
             dvc.name = name
-            await self.database.set_guild_dvc_settings(ctx.guild.id, models.DvcSettings.create(**dvc.__dict__))
+            await self.database.set_guild_dvc_settings(ctx.guild.id, dvc)
             embed = DvcSettings.embed(ctx, dvc, "成功設置名稱格式。", True)
         else:
             embed = DvcSettings.embed(ctx, dvc, "名稱格式不能為空。", False)
@@ -156,7 +155,7 @@ class DvcComponents(BaseExtension):
         dvc = await self.database.get_guild_dvc_settings(ctx.guild.id)
         if dvc.enabled:
             dvc.enabled = False
-            await self.database.set_guild_dvc_settings(ctx.guild.id, models.DvcSettings.create(**dvc.__dict__))
+            await self.database.set_guild_dvc_settings(ctx.guild.id, dvc)
             async for i in self.database.get_guild_dvcs(ctx.guild.id):
                 await self.client.http.delete_channel(i)
             return DvcSettings.embed(ctx, dvc, "成功停用動態語音頻道。", True), DvcSettings.components(dvc)
@@ -165,7 +164,7 @@ class DvcComponents(BaseExtension):
         if not dvc.name:
             return DvcSettings.embed(ctx, dvc, "請先設置名稱格式。", False), DvcSettings.components(dvc)
         dvc.enabled = True
-        await self.database.set_guild_dvc_settings(ctx.guild.id, models.DvcSettings.create(**dvc.__dict__))
+        await self.database.set_guild_dvc_settings(ctx.guild.id, dvc)
         return DvcSettings.embed(ctx, dvc, "成功啟用動態語音頻道。", True), DvcSettings.components(dvc)
 
     @interactions.component_callback("dvc_settings:select")
@@ -214,7 +213,7 @@ class DvcComponents(BaseExtension):
         await ctx.defer(edit_origin=True)
         dvc = await self.database.get_guild_dvc_settings(ctx.guild.id)
         dvc.lobby = ctx.values[0].id
-        await self.database.set_guild_dvc_settings(ctx.guild.id, models.DvcSettings.create(**dvc.__dict__))
+        await self.database.set_guild_dvc_settings(ctx.guild.id, dvc)
         embed = DvcSettings.embed(ctx, dvc, "成功設置大廳頻道。", True)
         components = DvcSettings.components(dvc)
         await ctx.edit(embed=embed, components=components)

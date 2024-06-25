@@ -61,7 +61,7 @@ class Embed(interactions.Embed):
             kwargs["description"] = description.replace(self._client.http.token, "[REDACTED TOKEN]")
 
         super().__init__(**kwargs)
-        self.set_author(name="猫戸助手", icon_url=self._client.user.avatar.url)
+        self.set_author(name="NekoNode", icon_url=self._client.user.avatar.url)
 
     def add_field(self, name: str, value: str, inline: Optional[bool] = False, pre: Optional[bool] = False) -> "Embed":
         """

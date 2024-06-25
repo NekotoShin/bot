@@ -20,17 +20,17 @@ from typing import List
 import interactions
 
 from src.core.database.models import SafetySettings as SafetySettingsModel
-from src.utils.embed import Embed
 
-from ...const import PLACEHOLDER_EMOJI
-from ..core import Settings
+from .....const import PLACEHOLDER_EMOJI
+from .....embed import Embed
+from ...utils import return_option
 
-__all__ = ("SafetySettings",)
+__all__ = ("MessageSafetySettings",)
 
 
-class SafetySettings:
+class MessageSafetySettings:
     """
-    This class contains methods to generate embed responses and components for the dynamic voice channel settings.
+    This class contains methods to generate embed responses and components for the settings command.
     """
 
     @staticmethod
@@ -39,10 +39,10 @@ class SafetySettings:
         Create a default dynamic voice channel settings embed.
         """
         emoji = 1252837291957682208 if safety.enabled else 1252837290146005094
-        embed = Embed(msg or "這裡是安全檢查的設定。", success)
+        embed = Embed(msg or "這裡是訊息檢查的設定。", success)
         embed.set_thumbnail(f"https://cdn.discordapp.com/emojis/{emoji}.png")
         embed.add_field(
-            name="目前狀態 - 訊息檢查",
+            name="目前狀態",
             value=f"Discord token檢查已{'啟用' if safety.dtoken else '停用'}\n連結安全掃描已{'啟用' if safety.url else '停用'}",
             inline=True,
         )
@@ -57,7 +57,7 @@ class SafetySettings:
             interactions.ActionRow(
                 interactions.StringSelectMenu(
                     interactions.StringSelectOption(
-                        label="NekoOS • 安全檢查設定",
+                        label="NekoOS • 訊息檢查設定",
                         value="placeholder",
                         emoji=PLACEHOLDER_EMOJI,
                         default=True,
@@ -65,7 +65,7 @@ class SafetySettings:
                     interactions.StringSelectOption(
                         label="停用Discord token檢查" if safety.dtoken else "啟用Discord token檢查",
                         value="dtoken",
-                        description=f"{'停用' if safety.dtoken else '啟用'}訊息檢查 (Discord token)",
+                        description=f"{'停止' if safety.dtoken else '開始'} 掃描訊息是否包含 Discord token",
                         emoji=interactions.PartialEmoji(
                             id=1252837290146005094 if safety.dtoken else 1252837291957682208
                         ),
@@ -73,11 +73,11 @@ class SafetySettings:
                     interactions.StringSelectOption(
                         label="停用連結安全掃描" if safety.url else "啟用連結安全掃描",
                         value="url",
-                        description=f"{'停用' if safety.url else '啟用'}訊息檢查 (連結安全掃描)",
+                        description=f"{'停止' if safety.url else '開始'} 掃描訊息中的連結是否安全",
                         emoji=interactions.PartialEmoji(id=1252837290146005094 if safety.url else 1252837291957682208),
                     ),
-                    Settings.return_option(),
-                    custom_id="safety_settings:select",
+                    return_option(),
+                    custom_id="safety_settings:message_select",
                 ),
             ),
         ]

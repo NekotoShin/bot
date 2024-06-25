@@ -15,7 +15,19 @@ You should have received a copy of the GNU Affero General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
 
-from .dvc import DvcPanel, DvcSettings
-from .safety import SafetySettings
+import interactions
 
-__all__ = ("DvcSettings", "DvcPanel", "SafetySettings")
+
+def return_option() -> interactions.StringSelectOption:
+    """
+    Generate a return option for the settings command.
+
+    :return: The return option.
+    :rtype: interactions.StringSelectOption
+    """
+    return interactions.StringSelectOption(
+        label="返回",
+        value="return",
+        description="回到上一個選單",
+        emoji="🔙",
+    )

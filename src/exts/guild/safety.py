@@ -22,7 +22,7 @@ import decouple
 import interactions  # noqa: F401
 
 from src.main import BaseExtension, Client
-from src.utils import Embed, SafetySettings, Settings, Validator
+from src.utils import Embed, GuildSafetySettings, MessageSafetySettings, Validator
 
 
 class Safety(BaseExtension):
@@ -128,7 +128,7 @@ class Safety(BaseExtension):
         if checks.url and await self._handle_urls(event):
             return
 
-    @interactions.component_callback("safety_settings:select")
+    @interactions.component_callback("safety_settings:message_select")
     async def safety_settings_select(self, ctx: interactions.ComponentContext):
         """
         The component callback for the safety settings select menu.
@@ -138,21 +138,23 @@ class Safety(BaseExtension):
         if option == "placeholder":
             embed, components = None, None
         elif option == "return":
-            embed = Settings.preferences_embed()
-            components = Settings.preferences_components(ctx)
+            embed = GuildSafetySettings.embed()
+            components = GuildSafetySettings.components(ctx)
         elif option == "dtoken":
             safety = await self.database.get_guild_safety_settings(ctx.guild.id)
             safety.dtoken = not safety.dtoken
-            embed = SafetySettings.embed(
+            embed = MessageSafetySettings.embed(
                 safety, f"已{'啟用' if safety.dtoken else '停用'}Discord token檢查。", success=True
             )
-            components = SafetySettings.components(safety)
+            components = MessageSafetySettings.components(safety)
             await self.database.set_guild_safety_settings(ctx.guild.id, safety)
         elif option == "url":
             safety = await self.database.get_guild_safety_settings(ctx.guild.id)
             safety.url = not safety.url
-            embed = SafetySettings.embed(safety, f"已{'啟用' if safety.url else '停用'}連結安全掃描。", success=True)
-            components = SafetySettings.components(safety)
+            embed = MessageSafetySettings.embed(
+                safety, f"已{'啟用' if safety.url else '停用'}連結安全掃描。", success=True
+            )
+            components = MessageSafetySettings.components(safety)
             await self.database.set_guild_safety_settings(ctx.guild.id, safety)
         await ctx.edit_origin(embed=embed, components=components)
 

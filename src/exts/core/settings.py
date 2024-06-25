@@ -18,7 +18,17 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 import interactions
 
 from src.main import BaseExtension, Client
-from src.utils import DvcSettings, SafetySettings, Settings
+from src.utils import (
+    DvcSettings,
+    GuildFunSettings,
+    GuildGeneralSettings,
+    GuildPreferencesSettings,
+    GuildSafetySettings,
+    GuildSettings,
+    MessageSafetySettings,
+    PersonalSettings,
+    Settings,
+)
 
 
 class SettingsExt(BaseExtension):
@@ -40,7 +50,7 @@ class SettingsExt(BaseExtension):
     async def settings(self, ctx: interactions.SlashContext):
         """管理機器人設定"""
         await ctx.defer(ephemeral=True)
-        await ctx.respond(embed=Settings.default_embed(), components=Settings.default_components(ctx))
+        await ctx.respond(embed=Settings.embed(), components=Settings.components(ctx))
 
     @interactions.component_callback("settings:type_select")
     async def type_select(self, ctx: interactions.ComponentContext):
@@ -50,11 +60,11 @@ class SettingsExt(BaseExtension):
         await ctx.defer(edit_origin=True)
         option = ctx.values[0]
         if option == "guild":
-            embed = Settings.guild_embed()
-            components = Settings.guild_components(ctx)
+            embed = GuildSettings.embed()
+            components = GuildSettings.components(ctx)
         elif option == "personal":
-            embed = Settings.personal_embed()
-            components = Settings.personal_components(ctx)
+            embed = PersonalSettings.embed()
+            components = PersonalSettings.components(ctx)
         elif option == "placeholder":
             embed, components = None, None
         await ctx.edit_origin(embed=embed, components=components)
@@ -66,17 +76,23 @@ class SettingsExt(BaseExtension):
         """
         await ctx.defer(edit_origin=True)
         option = ctx.values[0]
-        if option == "features":
-            embed = Settings.features_embed()
-            components = Settings.features_components(ctx)
+        if option == "general":
+            embed = GuildGeneralSettings.embed()
+            components = GuildGeneralSettings.components(ctx)
+        elif option == "fun":
+            embed = GuildFunSettings.embed()
+            components = GuildFunSettings.components(ctx)
+        elif option == "safety":
+            embed = GuildSafetySettings.embed()
+            components = GuildSafetySettings.components(ctx)
         elif option == "placeholder":
             embed, components = None, None
         elif option == "preferences":
-            embed = Settings.preferences_embed()
-            components = Settings.preferences_components(ctx)
+            embed = GuildPreferencesSettings.embed()
+            components = GuildPreferencesSettings.components(ctx)
         elif option == "return":
-            embed = Settings.default_embed()
-            components = Settings.default_components(ctx)
+            embed = Settings.embed()
+            components = Settings.components(ctx)
         await ctx.edit_origin(embed=embed, components=components)
 
     @interactions.component_callback("settings:personal_select")
@@ -89,14 +105,14 @@ class SettingsExt(BaseExtension):
         if option == "placeholder":
             embed, components = None, None
         elif option == "return":
-            embed = Settings.default_embed()
-            components = Settings.default_components(ctx)
+            embed = Settings.embed()
+            components = Settings.components(ctx)
         await ctx.edit_origin(embed=embed, components=components)
 
-    @interactions.component_callback("settings:features_select")
-    async def features_select(self, ctx: interactions.ComponentContext):
+    @interactions.component_callback("settings:general_select")
+    async def general_select(self, ctx: interactions.ComponentContext):
         """
-        The component callback for the features select menu.
+        The component callback for the general select menu.
         """
         await ctx.defer(edit_origin=True)
         option = ctx.values[0]
@@ -107,8 +123,40 @@ class SettingsExt(BaseExtension):
         elif option == "placeholder":
             embed, components = None, None
         elif option == "return":
-            embed = Settings.guild_embed()
-            components = Settings.guild_components(ctx)
+            embed = GuildSettings.embed()
+            components = GuildSettings.components(ctx)
+        await ctx.edit_origin(embed=embed, components=components)
+
+    @interactions.component_callback("settings:fun_select")
+    async def fun_select(self, ctx: interactions.ComponentContext):
+        """
+        The component callback for the fun select menu.
+        """
+        await ctx.defer(edit_origin=True)
+        option = ctx.values[0]
+        if option == "placeholder":
+            embed, components = None, None
+        elif option == "return":
+            embed = GuildSettings.embed()
+            components = GuildSettings.components(ctx)
+        await ctx.edit_origin(embed=embed, components=components)
+
+    @interactions.component_callback("settings:safety_select")
+    async def safety_select(self, ctx: interactions.ComponentContext):
+        """
+        The component callback for the safety select menu.
+        """
+        await ctx.defer(edit_origin=True)
+        option = ctx.values[0]
+        if option == "message":
+            safety = await self.database.get_guild_safety_settings(ctx.guild.id)
+            embed = MessageSafetySettings.embed(safety)
+            components = MessageSafetySettings.components(safety)
+        elif option == "placeholder":
+            embed, components = None, None
+        elif option == "return":
+            embed = GuildSettings.embed()
+            components = GuildSettings.components(ctx)
         await ctx.edit_origin(embed=embed, components=components)
 
     @interactions.component_callback("settings:preferences_select")
@@ -121,12 +169,8 @@ class SettingsExt(BaseExtension):
         if option == "placeholder":
             embed, components = None, None
         elif option == "return":
-            embed = Settings.guild_embed()
-            components = Settings.guild_components(ctx)
-        elif option == "safety":
-            safety = await self.database.get_guild_safety_settings(ctx.guild.id)
-            embed = SafetySettings.embed(safety)
-            components = SafetySettings.components(safety)
+            embed = GuildSettings.embed()
+            components = GuildSettings.components(ctx)
         await ctx.edit_origin(embed=embed, components=components)
 
 

@@ -15,7 +15,28 @@ You should have received a copy of the GNU Affero General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
 
-from .core import Settings
-from .guild import DvcPanel, DvcSettings, SafetySettings
+from .features import DvcPanel
+from .settings import (
+    DvcSettings,
+    GuildFunSettings,
+    GuildGeneralSettings,
+    GuildPreferencesSettings,
+    GuildSafetySettings,
+    GuildSettings,
+    MessageSafetySettings,
+    PersonalSettings,
+    Settings,
+)
 
-__all__ = ("Settings", "DvcSettings", "DvcPanel", "SafetySettings")
+__all__ = (
+    "Settings",
+    "GuildSettings",
+    "GuildSafetySettings",
+    "GuildFunSettings",
+    "GuildGeneralSettings",
+    "GuildPreferencesSettings",
+    "DvcSettings",
+    "MessageSafetySettings",
+    "PersonalSettings",
+    "DvcPanel",
+)

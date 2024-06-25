@@ -25,7 +25,7 @@ from interactions.api.events import ChannelDelete, VoiceStateUpdate
 
 from src.core.database import models
 from src.main import BaseExtension, Client
-from src.utils import DvcPanel, DvcSettings, Embed, Ratelimited, Settings
+from src.utils import DvcPanel, DvcSettings, Embed, GuildGeneralSettings, Ratelimited
 
 
 class DvcModals(BaseExtension):
@@ -187,8 +187,8 @@ class DvcComponents(BaseExtension):
         elif option == "placeholder":
             embed, components = None, None
         elif option == "return":
-            embed = Settings.features_embed()
-            components = Settings.features_components(ctx)
+            embed = GuildGeneralSettings.embed()
+            components = GuildGeneralSettings.components(ctx)
         await ctx.edit(embed=embed, components=components)
 
     @interactions.component_callback("dvc_settings:channel_action_select")

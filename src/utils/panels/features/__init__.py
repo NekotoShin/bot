@@ -15,6 +15,6 @@ You should have received a copy of the GNU Affero General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
 
-from .settings import Settings
+from .dvc import DvcPanel
 
-__all__ = ("Settings",)
+__all__ = ("DvcPanel",)

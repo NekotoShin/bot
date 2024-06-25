@@ -39,7 +39,7 @@ class GuildSettings(CanExecute):
         """
         result = await self.execute("SELECT dvc FROM guilds WHERE id = ?;", (to_bigint(guild_id),))
         row = result.first()
-        return DvcSettings(**row["dvc"]) if row else DvcSettings.default()
+        return DvcSettings(**row["dvc"]) if row and row["dvc"] else DvcSettings.default()
 
     async def set_guild_dvc_settings(self, guild_id: int, settings: DvcSettings) -> None:
         """
@@ -64,7 +64,7 @@ class GuildSettings(CanExecute):
         """
         result = await self.execute("SELECT safety FROM guilds WHERE id = ?;", (to_bigint(guild_id),))
         row = result.first()
-        return SafetySettings(**row["safety"]) if row else SafetySettings.default()
+        return SafetySettings(**row["safety"]) if row and row["safety"] else SafetySettings.default()
 
     async def set_guild_safety_settings(self, guild_id: int, settings: SafetySettings) -> None:
         """

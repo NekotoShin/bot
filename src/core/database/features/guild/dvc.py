@@ -21,7 +21,7 @@ from typing import AsyncGenerator
 from ....protocols import CanExecute
 from ...utils import to_bigint, to_snowflake
 
-__all__ = ("Dvc",)
+__all__ = ("Dvc", "DvcSettingsModel")
 
 
 @dataclasses.dataclass

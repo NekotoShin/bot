@@ -33,7 +33,10 @@ def to_bigint(snowflake: Snowflake_Type, as_int: Optional[bool] = False) -> BigI
     :return: The bigint representation of the snowflake.
     :rtype: BigInt
     """
-    value = int(snowflake) - 9223372036854775808
+    value = int(snowflake)
+    if value == -1:
+        return None
+    value -= 9223372036854775808
     return value if as_int else BigInt(value)
 
 

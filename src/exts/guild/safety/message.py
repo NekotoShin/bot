@@ -19,15 +19,15 @@ import contextlib
 
 import aiohttp
 import decouple
-import interactions  # noqa: F401
+import interactions
 
 from src.main import BaseExtension, Client
 from src.utils import Embed, GuildSafetySettings, MessageSafetySettings, Validator
 
 
-class Safety(BaseExtension):
+class MessageSafety(BaseExtension):
     """
-    The extension class for the [purpose].
+    The extension class for the message safety features.
     """
 
     async def _handle_tokens(self, event: interactions.events.MessageCreate) -> bool:
@@ -166,4 +166,4 @@ def setup(client: Client):
     :param client: The client object.
     :type client: Client
     """
-    Safety(client)
+    MessageSafety(client)

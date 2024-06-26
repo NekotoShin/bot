@@ -26,6 +26,7 @@ from .discord import snowflake_time
 from .embed import Embed
 from .errors import BotException, Ratelimited
 from .panels import (
+    CountingSettings,
     DvcPanel,
     DvcSettings,
     GuildFunSettings,
@@ -59,5 +60,6 @@ __all__ = (
     "MessageSafetySettings",
     "PersonalSettings",
     "DvcPanel",
+    "CountingSettings",
     "Validator",
 )

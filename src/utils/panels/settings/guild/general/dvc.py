@@ -41,14 +41,15 @@ class DvcSettings:
         emoji = SWITCH_ON_EMOJI.id if dvc.enabled else SWITCH_OFF_EMOJI.id
         embed = Embed(msg or "這裡是動態語音頻道的設定。", success)
         embed.set_thumbnail(f"https://cdn.discordapp.com/emojis/{emoji}.png")
+        channel_set = dvc.lobby != -1 and ctx.guild.get_channel(dvc.lobby) is not None
         embed.add_field(
             name="目前狀態",
-            value=f"已{'啟用' if dvc.enabled else '停用'}",
+            value=f"已{'啟用' if dvc.enabled and channel_set else '停用'}",
             inline=True,
         )
         embed.add_field(
             name="大廳頻道",
-            value="未設置" if dvc.lobby == -1 or ctx.guild.get_channel(dvc.lobby) is None else f"<#{dvc.lobby}>",
+            value=f"<#{dvc.lobby}>" if channel_set else "未設置",
             inline=True,
         )
         embed.add_field(

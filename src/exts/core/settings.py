@@ -19,6 +19,7 @@ import interactions
 
 from src.main import BaseExtension, Client
 from src.utils import (
+    CountingSettings,
     DvcSettings,
     GuildFunSettings,
     GuildGeneralSettings,
@@ -134,7 +135,11 @@ class SettingsExt(BaseExtension):
         """
         await ctx.defer(edit_origin=True)
         option = ctx.values[0]
-        if option == "placeholder":
+        if option == "counting":
+            counting = await self.database.get_guild_counting(ctx.guild.id)
+            embed = CountingSettings.embed(ctx, counting)
+            components = CountingSettings.components(counting)
+        elif option == "placeholder":
             embed, components = None, None
         elif option == "return":
             embed = GuildSettings.embed()

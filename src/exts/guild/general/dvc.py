@@ -19,7 +19,7 @@ import asyncio
 import re
 from typing import List, Tuple
 
-import interactions  # noqa: F401
+import interactions
 from interactions import MISSING, TYPE_ALL_CHANNEL, Absent
 from interactions.api.events import ChannelDelete, VoiceStateUpdate
 

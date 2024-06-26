@@ -15,7 +15,8 @@ You should have received a copy of the GNU Affero General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
 
+from .counting import Counting, CountingSettingsModel
 from .dvc import Dvc, DvcSettingsModel
 from .safety import Safety, SafetySettingsModel
 
-__all__ = ("Dvc", "Safety", "DvcSettingsModel", "SafetySettingsModel")
+__all__ = ("Dvc", "Safety", "Counting", "DvcSettingsModel", "SafetySettingsModel", "CountingSettingsModel")

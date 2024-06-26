@@ -22,6 +22,7 @@ import interactions
 from ...const import PLACEHOLDER_EMOJI
 from ...embed import Embed
 from .guild import (
+    CountingSettings,
     DvcSettings,
     GuildFunSettings,
     GuildGeneralSettings,
@@ -41,6 +42,7 @@ __all__ = (
     "GuildPreferencesSettings",
     "DvcSettings",
     "MessageSafetySettings",
+    "CountingSettings",
     "PersonalSettings",
 )
 

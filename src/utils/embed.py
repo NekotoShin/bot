@@ -15,7 +15,6 @@ You should have received a copy of the GNU Affero General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
 
-import datetime
 from typing import TYPE_CHECKING, Literal, Optional
 
 import interactions
@@ -49,6 +48,7 @@ class Embed(interactions.Embed):
         self,
         description: Optional[str] = None,
         success: Optional[bool] = None,
+        fullwidth: Optional[bool] = True,
         **kwargs,
     ) -> None:
         if "color" in kwargs and success is not None:
@@ -60,19 +60,20 @@ class Embed(interactions.Embed):
         if description:
             description = "".join(f"{REPLY_EMOJI} {i}" for i in description.splitlines(True))
             kwargs["description"] = description.replace(self._client.http.token, "[REDACTED TOKEN]")
-        if "timestamp" not in kwargs:
-            kwargs["timestamp"] = datetime.datetime.now(datetime.timezone.utc)
-        if "footer" not in kwargs:
-            kwargs["footer"] = interactions.EmbedFooter(
-                text="Powered by @nekotoshin", icon_url=self._client.dev_user.avatar.url
-            )
+        # if "timestamp" not in kwargs:
+        #     kwargs["timestamp"] = datetime.datetime.now(datetime.timezone.utc)
+        # if "footer" not in kwargs:
+        #     kwargs["footer"] = interactions.EmbedFooter(
+        #         text="Powered by @nekotoshin", icon_url=self._client.dev_user.avatar.url
+        #     )
 
         super().__init__(**kwargs)
         self.set_author(name="NekoNode", icon_url=self._client.user.avatar.url)
-        self.set_image(
-            url="https://raw.githubusercontent.com/NekotoShin/NekoNode/"
-            "e02132e12ca6e237b94ae13762e18e164f124231/assets/other/embed-fullwidth.png"
-        )
+        if fullwidth:
+            self.set_image(
+                url="https://raw.githubusercontent.com/NekotoShin/NekoNode/"
+                "e02132e12ca6e237b94ae13762e18e164f124231/assets/other/embed-fullwidth.png"
+            )
 
     def add_field(self, name: str, value: str, inline: Optional[bool] = False, pre: Optional[bool] = False) -> "Embed":
         """

@@ -20,7 +20,7 @@ import dataclasses
 from ....protocols import CanExecute
 from ...utils import to_bigint
 
-__all__ = ("Safety",)
+__all__ = ("Safety", "SafetySettingsModel")
 
 
 @dataclasses.dataclass

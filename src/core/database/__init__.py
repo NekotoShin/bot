@@ -20,13 +20,27 @@ from typing import List, Optional
 
 from scyllapy import Consistency, ExecutionProfile, Scylla
 
-from .features import Dvc, DvcSettingsModel, Safety, SafetySettingsModel
+from .features import (
+    Counting,
+    CountingSettingsModel,
+    Dvc,
+    DvcSettingsModel,
+    Safety,
+    SafetySettingsModel,
+)
 from .utils import to_bigint, to_snowflake
 
-__all__ = ("DatabaseClient", "to_bigint", "to_snowflake", "DvcSettingsModel", "SafetySettingsModel")
+__all__ = (
+    "DatabaseClient",
+    "to_bigint",
+    "to_snowflake",
+    "DvcSettingsModel",
+    "SafetySettingsModel",
+    "CountingSettingsModel",
+)
 
 
-class DatabaseClient(Dvc, Safety):
+class DatabaseClient(Dvc, Safety, Counting):
     """
     The database class of the bot.
     """

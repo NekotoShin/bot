@@ -22,8 +22,9 @@ import interactions
 from .....const import PLACEHOLDER_EMOJI
 from .....embed import Embed
 from ...utils import return_option
+from .counting import CountingSettings
 
-__all__ = ("GuildFunSettings",)
+__all__ = ("GuildFunSettings", "CountingSettings")
 
 
 class GuildFunSettings:
@@ -57,6 +58,12 @@ class GuildFunSettings:
                         value="placeholder",
                         emoji=PLACEHOLDER_EMOJI,
                         default=True,
+                    ),
+                    interactions.StringSelectOption(
+                        label="數數字",
+                        value="counting",
+                        description="管理數數字遊戲的設定",
+                        emoji="🔢",
                     ),
                     return_option(),
                     custom_id="settings:fun_select",

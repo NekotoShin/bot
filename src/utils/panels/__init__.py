@@ -17,6 +17,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 from .features import DvcPanel
 from .settings import (
+    CountingSettings,
     DvcSettings,
     GuildFunSettings,
     GuildGeneralSettings,
@@ -39,4 +40,5 @@ __all__ = (
     "MessageSafetySettings",
     "PersonalSettings",
     "DvcPanel",
+    "CountingSettings",
 )
